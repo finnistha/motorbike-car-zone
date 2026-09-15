@@ -17,8 +17,8 @@
     <label><b>Mobile Number</b></label>
     <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
+    <button id="gateSendOtpBtn" class="primary" onclick="gateSendOTP()">Send OTP</button>
     <div id="gateRecaptcha" style="margin-top:10px"></div>
-    <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
     <div id="gateOtpArea" style="display:none">
       <label style="display:block;margin-top:15px"><b>Enter OTP</b></label>
@@ -100,7 +100,14 @@ window.gateSendOTP = async function () {
 
   try {
     if (!recaptchaVerifier) {
-      recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {size:"normal"});
+      recaptchaVerifier = new RecaptchaVerifier(auth, "gateSendOtpBtn", {
+        size: "invisible",
+        callback: () => {},
+        "expired-callback": () => {
+          status.textContent = "reCAPTCHA expired. Please press Send OTP again.";
+        }
+      });
+      await recaptchaVerifier.render();
     }
 
     confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
@@ -108,7 +115,7 @@ window.gateSendOTP = async function () {
     status.textContent = "OTP sent. Enter the 6-digit OTP.";
   } catch (error) {
     console.error(error);
-    status.textContent = "OTP could not be sent. Check Phone Authentication, reCAPTCHA and Authorized Domains.";
+    status.textContent = "OTP error: " + (error.code || "unknown") + " — " + (error.message || "Unknown error");
     try { recaptchaVerifier.clear(); } catch(e) {}
     recaptchaVerifier = null;
   }
