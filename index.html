@@ -1,0 +1,135 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#5b3cc4"><title>MOTORBIKE & CAR ZONE</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f6fb;color:#202124}header{background:linear-gradient(135deg,#5b3cc4,#2878e8);color:#fff;padding:22px 18px 26px;border-radius:0 0 24px 24px}.logo{font-size:21px;font-weight:800}.tag{opacity:.9;margin-top:5px;font-size:13px}.location{margin-top:15px;font-size:14px}.search{margin-top:13px;background:#fff;border-radius:13px;padding:13px;color:#777}main{padding:16px;max-width:700px;margin:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:#fff;border-radius:17px;padding:17px;box-shadow:0 3px 14px #00000010}.action{font-weight:800;font-size:17px}.muted{font-size:13px;color:#777;margin-top:5px}button{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}.primary{background:#5b3cc4;color:white}.light{background:#eef0ff;color:#4b36a5}h2{font-size:19px;margin:22px 0 12px}.chips{display:flex;gap:8px;overflow:auto}.chip{white-space:nowrap;background:#fff;border:1px solid #ddd;border-radius:20px;padding:9px 13px}.vehicle{margin-top:12px}.price{font-size:19px;font-weight:800;margin-top:8px}.spec{font-size:13px;color:#666;margin-top:5px}.hidden{display:none}.form{display:grid;gap:10px}.form input,.form select,.form textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px}.nav{position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 4px;margin-top:25px}.nav button{background:none;color:#555;padding:8px}.badge{display:inline-block;background:#fff1cf;color:#8a5b00;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:700}
+
+#firstLoginGate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#5b3cc4,#2878e8)}
+#firstLoginCard{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:26px;box-shadow:0 15px 50px rgba(0,0,0,.25)}
+#firstLoginCard input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;margin-top:8px}
+#firstLoginCard button{width:100%;margin-top:10px}
+#firstLoginStatus{font-size:13px;color:#666;margin-top:10px;min-height:20px}
+</style></head><body>
+<div id="firstLoginGate">
+  <div id="firstLoginCard">
+    <div style="text-align:center;font-size:48px">🚗 🏍️</div>
+    <h1 style="text-align:center;margin:8px 0;font-size:24px">MOTORBIKE &amp; CAR ZONE</h1>
+    <p style="text-align:center;color:#666;margin-bottom:22px">Buy • Sell • Connect directly</p>
+
+    <label><b>Mobile Number</b></label>
+    <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
+
+    <div id="gateRecaptcha" style="margin-top:10px"></div>
+    <button class="primary" onclick="gateSendOTP()">Send OTP</button>
+
+    <div id="gateOtpArea" style="display:none">
+      <label style="display:block;margin-top:15px"><b>Enter OTP</b></label>
+      <input id="gateOtp" type="tel" placeholder="6-digit OTP" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+      <button class="primary" onclick="gateVerifyOTP()">Verify &amp; Continue</button>
+    </div>
+
+    <div id="firstLoginStatus">Mobile verification is required on first login.</div>
+  </div>
+</div>
+
+<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search">🔍 Search cars, bikes, brand or model</div></header>
+<main id="appContent" style="display:none">
+<section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
+<h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
+<h2>Featured Vehicles</h2><div id="vehicles"></div></section>
+<section id="buyer" class="hidden"><h2>Buyer</h2><div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search, compare details and contact the seller directly.</p><button class="primary" onclick="show('home')">View Vehicles</button></div></section>
+<section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><input id="photos" type="file" accept="image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
+</main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="show('buyer')">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
+<script>
+const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
+function render(list=data){document.getElementById('vehicles').innerHTML=list.map(v=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
+function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
+function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
+function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
+function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
+render();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
+  authDomain: "motorbike--car-zone.firebaseapp.com",
+  projectId: "motorbike--car-zone",
+  storageBucket: "motorbike--car-zone.firebasestorage.app",
+  messagingSenderId: "604944422467",
+  appId: "1:604944422467:web:57f36ceb7b3f60326b26f6",
+  measurementId: "G-F9BFX3GFTB"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+let confirmationResult = null;
+let recaptchaVerifier = null;
+
+const gate = document.getElementById("firstLoginGate");
+const appContent = document.getElementById("appContent");
+const appNav = document.getElementById("appNav");
+
+function showApp() {
+  gate.style.display = "none";
+  appContent.style.display = "block";
+  appNav.style.display = "flex";
+}
+
+function showGate() {
+  gate.style.display = "flex";
+  appContent.style.display = "none";
+  appNav.style.display = "none";
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) showApp();
+  else showGate();
+});
+
+window.gateSendOTP = async function () {
+  const phone = document.getElementById("gatePhone").value.trim();
+  const status = document.getElementById("firstLoginStatus");
+
+  if (!/^\+?[1-9]\d{9,14}$/.test(phone)) {
+    status.textContent = "Enter mobile number with country code, e.g. +9198951954077";
+    return;
+  }
+
+  status.textContent = "Sending OTP...";
+
+  try {
+    if (!recaptchaVerifier) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {size:"normal"});
+    }
+
+    confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+    document.getElementById("gateOtpArea").style.display = "block";
+    status.textContent = "OTP sent. Enter the 6-digit OTP.";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "OTP could not be sent. Check Phone Authentication, reCAPTCHA and Authorized Domains.";
+    try { recaptchaVerifier.clear(); } catch(e) {}
+    recaptchaVerifier = null;
+  }
+};
+
+window.gateVerifyOTP = async function () {
+  const otp = document.getElementById("gateOtp").value.trim();
+  const status = document.getElementById("firstLoginStatus");
+
+  if (!confirmationResult || !/^\d{6}$/.test(otp)) {
+    status.textContent = "Enter the 6-digit OTP.";
+    return;
+  }
+
+  try {
+    await confirmationResult.confirm(otp);
+    status.textContent = "Login successful.";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Invalid OTP. Please try again.";
+  }
+};
+</script>
+</body></html>
