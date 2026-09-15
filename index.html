@@ -18,8 +18,8 @@
       OTP is temporarily disabled for testing. Choose how you want to test the app.
     </p>
 
-    <button class="primary" onclick="testLogin('buyer')">🚘 Continue as Buyer</button>
-    <button class="light" onclick="testLogin('seller')">🏪 Continue as Seller</button>
+    <button id="continueBuyer" class="primary" type="button">🚘 Continue as Buyer</button>
+    <button id="continueSeller" class="light" type="button">🏪 Continue as Seller</button>
 
     <div id="firstLoginStatus" style="text-align:center">Test mode — no SMS, no billing.</div>
   </div>
@@ -45,27 +45,30 @@ render();
 
 <script>
 function testLogin(role) {
-  localStorage.setItem('mcz_test_role', role);
-  document.getElementById('firstLoginGate').style.display = 'none';
-  document.getElementById('appContent').style.display = 'block';
-  document.getElementById('appNav').style.display = 'flex';
+  document.getElementById("firstLoginGate").style.display = "none";
+  document.getElementById("appContent").style.display = "block";
+  document.getElementById("appNav").style.display = "flex";
+  localStorage.setItem("mcz_test_role", role);
 
-  if (role === 'buyer') {
-    show('buyer');
-    document.getElementById('buyer').innerHTML =
+  if (role === "buyer") {
+    show("buyer");
+    document.getElementById("buyer").innerHTML =
       '<h2>Buyer</h2>' +
       '<div class="card">' +
       '<p><b>Buyer Login Successful ✅</b></p>' +
-      '<p class="muted">Test browsing, vehicle filters and seller contact from the Buyer side.</p>' +
-      '<button class="primary" onclick="show(&quot;home&quot;)">View Vehicles</button>' +
+      '<p class="muted">You can now test vehicle browsing, filters and WhatsApp contact.</p>' +
+      '<button id="viewVehiclesBtn" class="primary" type="button">View Vehicles</button>' +
       '</div>';
+    document.getElementById("viewVehiclesBtn").addEventListener("click", function () {
+      show("home");
+    });
   } else {
-    show('seller');
-    document.getElementById('seller').innerHTML =
+    show("seller");
+    document.getElementById("seller").innerHTML =
       '<h2>Sell Your Vehicle</h2>' +
       '<div class="card">' +
       '<p><b>Seller Login Successful ✅</b></p>' +
-      '<p class="muted">Test the seller vehicle submission flow. The current demo submission shows Pending Admin Approval.</p>' +
+      '<p class="muted">Test the seller listing form. Submission will show Pending Admin Approval.</p>' +
       '<div class="form">' +
       '<select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>' +
       '<input id="name" placeholder="Seller Name">' +
@@ -78,10 +81,20 @@ function testLogin(role) {
       '<input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric">' +
       '<input id="photos" type="file" accept="image/*" multiple>' +
       '<textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea>' +
-      '<button class="primary" onclick="submitVehicle()">Submit Vehicle</button>' +
+      '<button id="submitVehicleBtn" class="primary" type="button">Submit Vehicle</button>' +
       '<div id="status" class="muted"></div>' +
       '</div></div>';
+    document.getElementById("submitVehicleBtn").addEventListener("click", submitVehicle);
   }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("continueBuyer").addEventListener("click", function () {
+    testLogin("buyer");
+  });
+  document.getElementById("continueSeller").addEventListener("click", function () {
+    testLogin("seller");
+  });
+});
 </script>
 </body></html>
