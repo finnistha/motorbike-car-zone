@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search">🔍 Search cars, bikes, brand or model</div></header>
+<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search"><input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model" autocomplete="off" style="width:100%;border:0;outline:0;font-size:14px;background:transparent"></div></header>
 <main id="appContent" style="display:none">
 <section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
 <h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
@@ -36,11 +36,30 @@
 <script>
 const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
 function render(list=data){document.getElementById('vehicles').innerHTML=list.map(v=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
+function searchVehicles(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const filtered = data.filter(v =>
+    !q ||
+    v.name.toLowerCase().includes(q) ||
+    v.type.toLowerCase().includes(q) ||
+    v.loc.toLowerCase().includes(q) ||
+    v.colour.toLowerCase().includes(q) ||
+    String(v.year).includes(q) ||
+    v.km.toLowerCase().includes(q)
+  );
+  render(filtered);
+}
 function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
 function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
 function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
 function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
 render();
+document.addEventListener('DOMContentLoaded', function(){
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput){
+    searchInput.addEventListener('input', searchVehicles);
+  }
+});
 </script>
 
 <script>
