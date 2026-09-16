@@ -25,41 +25,47 @@
   </div>
 </div>
 
-<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search"><input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model" autocomplete="off" style="width:100%;border:0;outline:0;font-size:14px;background:transparent"></div></header>
+<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search" style="display:flex;gap:8px;align-items:center"><span>🔍</span><input id="searchInput" type="search" placeholder="Search cars, bikes, brand or model" autocomplete="off" style="flex:1;min-width:0;border:0;outline:0;font-size:14px;background:transparent;color:#202124"><button id="searchBtn" class="primary" type="button" style="padding:9px 13px">Search</button></div></header>
 <main id="appContent" style="display:none">
-<section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
+<section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="openBuySearch()"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
 <h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
 <h2>Featured Vehicles</h2><div id="vehicles"></div></section>
+<section id="details" class="hidden"><h2>Vehicle Details</h2><div id="detailsCard"></div><button class="light" style="margin-top:12px" onclick="show('home')">← Back to Vehicles</button></section>
 <section id="buyer" class="hidden"><h2>Buyer</h2><div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search, compare details and contact the seller directly.</p><button class="primary" onclick="show('home')">View Vehicles</button></div></section>
 <section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><input id="photos" type="file" accept="image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
-</main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="show('buyer')">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
+</main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="openBuySearch()">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
 <script>
 const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
-function render(list=data){document.getElementById('vehicles').innerHTML=list.map(v=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
-function searchVehicles(){
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  const filtered = data.filter(v =>
-    !q ||
-    v.name.toLowerCase().includes(q) ||
-    v.type.toLowerCase().includes(q) ||
-    v.loc.toLowerCase().includes(q) ||
-    v.colour.toLowerCase().includes(q) ||
-    String(v.year).includes(q) ||
-    v.km.toLowerCase().includes(q)
-  );
-  render(filtered);
-}
+function render(list=data){document.getElementById('vehicles').innerHTML=list.map((v,i)=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px;margin-right:6px" onclick="viewDetails('+i+',\''+encodeURIComponent(JSON.stringify(v))+'\')">View Details</button><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
 function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
+function searchVehicles(){const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();if(!q){render(data);return}render(data.filter(v=>[v.name,v.type,v.loc,v.colour,v.year,v.km,v.price].some(x=>String(x).toLowerCase().includes(q))))}
+function viewDetails(index,encoded){
+  const v=JSON.parse(decodeURIComponent(encoded));
+  document.getElementById('detailsCard').innerHTML=
+    '<div class="card">'+
+    '<span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span>'+
+    '<h2 style="margin-top:14px">'+v.name+'</h2>'+
+    '<div class="spec"><b>Year:</b> '+v.year+'</div>'+
+    '<div class="spec"><b>KM Driven:</b> '+v.km+'</div>'+
+    '<div class="spec"><b>Colour:</b> '+v.colour+'</div>'+
+    '<div class="spec"><b>Location:</b> '+v.loc+'</div>'+
+    '<div class="price">'+v.price+'</div>'+
+    '<button class="primary" style="margin-top:12px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button>'+
+    '</div>';
+  show('details');
+}
+function openBuySearch(){
+  show('home');
+  const searchInput=document.getElementById('searchInput');
+  if(searchInput){
+    searchInput.focus();
+    searchInput.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
 function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
 function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
 function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
 render();
-document.addEventListener('DOMContentLoaded', function(){
-  const searchInput = document.getElementById('searchInput');
-  if(searchInput){
-    searchInput.addEventListener('input', searchVehicles);
-  }
-});
 </script>
 
 <script>
@@ -108,6 +114,8 @@ function testLogin(role) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("searchBtn").addEventListener("click", searchVehicles);
+  document.getElementById("searchInput").addEventListener("keydown", function(e){if(e.key==="Enter"){e.preventDefault();searchVehicles();}});
   document.getElementById("continueBuyer").addEventListener("click", function () {
     testLogin("buyer");
   });
