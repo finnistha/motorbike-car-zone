@@ -7,6 +7,13 @@
 #firstLoginCard input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;margin-top:8px}
 #firstLoginCard button{width:100%;margin-top:10px}
 #firstLoginStatus{font-size:13px;color:#666;margin-top:10px;min-height:20px}
+
+#detailsModal{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;padding:0}
+#detailsCard{width:100%;max-width:700px;max-height:88vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:22px}
+.detailRow{padding:11px 0;border-bottom:1px solid #eee;font-size:14px}
+.detailLabel{font-size:12px;color:#777}
+.detailValue{font-weight:700;margin-top:3px}
+@media(min-width:700px){#detailsModal{align-items:center;padding:20px}#detailsCard{border-radius:24px}}
 </style></head><body>
 <div id="firstLoginGate">
   <div id="firstLoginCard">
@@ -17,7 +24,7 @@
     <label><b>Mobile Number</b></label>
     <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
-    <div id="gateRecaptcha" style="margin-top:12px;min-height:10px"></div>
+    <div id="gateRecaptcha" style="margin-top:12px;min-height:78px"></div>
     <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
     <div id="gateOtpArea" style="display:none">
@@ -26,11 +33,26 @@
       <button class="primary" onclick="gateVerifyOTP()">Verify &amp; Continue</button>
     </div>
 
-    <div id="firstLoginStatus">Mobile verification is required on first login.<br><small>Firebase test: +1 650-555-1234 → OTP 123456</small></div>
+    <div id="firstLoginStatus">Mobile verification is required on first login.</div>
   </div>
 </div>
 
-<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search">🔍 Search cars, bikes, brand or model</div></header>
+
+<div id="detailsModal" onclick="if(event.target===this) closeDetails()">
+  <div id="detailsCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h2 id="detailsTitle" style="margin:0">Vehicle Details</h2>
+      <button class="light" onclick="closeDetails()">✕ Close</button>
+    </div>
+    <div id="detailsBody" style="margin-top:10px"></div>
+    <button id="detailsWhatsApp" class="primary" style="width:100%;margin-top:15px">WhatsApp Seller</button>
+  </div>
+</div>
+<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search" style="display:flex;gap:8px;align-items:center">
+  <input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model"
+    style="flex:1;border:0;outline:0;font-size:14px;background:transparent;padding:2px">
+  <button class="primary" style="padding:9px 13px" onclick="runSearch()">Search</button>
+</div></header>
 <main id="appContent" style="display:none">
 <section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
 <h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
@@ -40,16 +62,78 @@
 </main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="show('buyer')">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
 <script>
 const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
-function render(list=data){document.getElementById('vehicles').innerHTML=list.map(v=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, function(ch){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+  });
+}
+function render(list=data){
+  const box=document.getElementById('vehicles');
+  if(!list.length){
+    box.innerHTML='<div class="card muted">No vehicles found.</div>';
+    return;
+  }
+  box.innerHTML=list.map((v,i)=>`
+    <div class="card vehicle">
+      <span class="badge">${v.type==='car'?'CAR':'BIKE'} • APPROVED DEMO</span>
+      <h3>${escapeHtml(v.name)}</h3>
+      <div class="spec">${escapeHtml(v.year)} • ${escapeHtml(v.km)} • ${escapeHtml(v.colour)}</div>
+      <div class="spec">📍 ${escapeHtml(v.loc)}</div>
+      <div class="price">${escapeHtml(v.price)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="light" onclick="viewDetails(${i}, ${JSON.stringify(list).replace(/</g,'\u003c')})">View Details</button>
+        <button class="primary" onclick="contact('${String(v.name).replace(/'/g,"\'")}','${String(v.price).replace(/'/g,"\'")}')">WhatsApp Seller</button>
+      </div>
+    </div>`).join('');
+}
 function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
 function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
 function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
+function runSearch(){
+  const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();
+  if(!q){ render(data); return; }
+  const result=data.filter(v =>
+    [v.type,v.name,v.year,v.km,v.loc,v.price,v.colour]
+      .some(x=>String(x).toLowerCase().includes(q))
+  );
+  render(result);
+}
+document.getElementById('searchInput')?.addEventListener('keydown', function(e){
+  if(e.key==='Enter') runSearch();
+});
+
+function viewDetails(index, list){
+  const v=list[index];
+  if(!v) return;
+  document.getElementById('detailsTitle').textContent=v.name;
+  document.getElementById('detailsBody').innerHTML=`
+    <div class="detailRow"><div class="detailLabel">Vehicle Type</div><div class="detailValue">${escapeHtml(v.type==='car'?'Car':'Bike')}</div></div>
+    <div class="detailRow"><div class="detailLabel">Brand / Model</div><div class="detailValue">${escapeHtml(v.name)}</div></div>
+    <div class="detailRow"><div class="detailLabel">Year</div><div class="detailValue">${escapeHtml(v.year)}</div></div>
+    <div class="detailRow"><div class="detailLabel">KM Driven</div><div class="detailValue">${escapeHtml(v.km)}</div></div>
+    <div class="detailRow"><div class="detailLabel">Colour</div><div class="detailValue">${escapeHtml(v.colour)}</div></div>
+    <div class="detailRow"><div class="detailLabel">Location</div><div class="detailValue">${escapeHtml(v.loc)}</div></div>
+    <div class="detailRow"><div class="detailLabel">Selling Price</div><div class="detailValue">${escapeHtml(v.price)}</div></div>`;
+  document.getElementById('detailsWhatsApp').onclick=function(){
+    contact(v.name,v.price);
+  };
+  document.getElementById('detailsModal').style.display='flex';
+}
+function closeDetails(){
+  document.getElementById('detailsModal').style.display='none';
+}
+
 function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
 render();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
@@ -63,29 +147,19 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// DEVELOPMENT TEST ONLY.
+// Firebase Console test number: +1 650-555-1234
+// Test code: 123456
+// Production OTP mode: real numbers use Firebase reCAPTCHA and SMS.
+
 let confirmationResult = null;
 let recaptchaVerifier = null;
-
-const TEST_PHONE = "+16505551234";
-
-function normalizePhone(value) {
-  return value.replace(/[\\s()-]/g, "");
-}
-
-function isFirebaseTestPhone(phone) {
-  return normalizePhone(phone) === TEST_PHONE;
-}
-
-function resetRecaptcha() {
-  try {
-    if (recaptchaVerifier) recaptchaVerifier.clear();
-  } catch (e) {}
-  recaptchaVerifier = null;
-}
 
 const gate = document.getElementById("firstLoginGate");
 const appContent = document.getElementById("appContent");
 const appNav = document.getElementById("appNav");
+const status = document.getElementById("firstLoginStatus");
 
 function showApp() {
   gate.style.display = "none";
@@ -104,77 +178,80 @@ onAuthStateChanged(auth, (user) => {
   else showGate();
 });
 
-window.gateSendOTP = async function () {
-  const input = document.getElementById("gatePhone");
-  const phone = normalizePhone(input.value.trim());
-  const status = document.getElementById("firstLoginStatus");
+function resetVerifier() {
+  try {
+    if (recaptchaVerifier) recaptchaVerifier.clear();
+  } catch (e) {}
+  recaptchaVerifier = null;
+}
 
-  if (!/^\\+?[1-9]\\d{9,14}$/.test(phone)) {
-    status.textContent = "Enter mobile number with country code, e.g. +9198951954077";
+window.gateSendOTP = async function () {
+  const phoneInput = document.getElementById("gatePhone");
+  const phone = phoneInput.value.trim().replace(/[\s()-]/g, "");
+
+  if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
+    status.textContent = "Enter number with country code, e.g. +9198951954077";
     return;
   }
 
-  status.textContent = "Preparing OTP verification...";
+  status.textContent = "Preparing test verification...";
 
   try {
-    // Use Firebase test-mode app verification ONLY for the exact fictional test number.
-    // Real customer phone numbers continue to use reCAPTCHA.
-    auth.settings.appVerificationDisabledForTesting = isFirebaseTestPhone(phone);
+    resetVerifier();
 
-    resetRecaptcha();
-
+    // IMPORTANT: visible verifier container is used for the Firebase test flow.
     recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {
-      size: "invisible"
+      size: "normal",
+      callback: () => {
+        status.textContent = "Verification ready. Sending...";
+      },
+      "expired-callback": () => {
+        status.textContent = "Verification expired. Tap Send OTP again.";
+      }
     });
 
-    confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+    // Render the verifier before signInWithPhoneNumber.
+    await recaptchaVerifier.render();
+
+    confirmationResult = await signInWithPhoneNumber(
+      auth,
+      phone,
+      recaptchaVerifier
+    );
+
     document.getElementById("gateOtpArea").style.display = "block";
-
-    status.textContent = isFirebaseTestPhone(phone)
-      ? "Test OTP ready. Enter 123456."
-      : "OTP sent. Enter the 6-digit OTP.";
+    status.textContent = "Test OTP ready. Enter 123456.";
   } catch (error) {
-    console.error("Phone Auth error:", error);
-    const code = error && error.code ? error.code : "unknown-error";
-    let message = "OTP could not be sent: " + code + ".";
-
-    if (code === "auth/billing-not-enabled") {
-      message += " Real SMS OTP requires Firebase billing/Blaze.";
-    } else if (code === "auth/invalid-phone-number") {
-      message += " Check the phone number format.";
-    } else if (code === "auth/too-many-requests") {
-      message += " Too many attempts. Try again later.";
-    } else if (code === "auth/invalid-app-credential" || code === "auth/captcha-check-failed") {
-      message += " reCAPTCHA verification failed. Refresh the page and try again.";
-    } else if (code === "auth/internal-error") {
-      message += " Refresh the page and test with +1 650-555-1234.";
-    } else {
-      message += " Refresh the page and try again.";
-    }
-
-    status.textContent = message;
-    resetRecaptcha();
+    console.error("Firebase phone auth error:", error);
+    status.textContent =
+      "OTP error: " + (error.code || "unknown") +
+      (error.message ? " — " + error.message : "");
+    resetVerifier();
   }
 };
 
 window.gateVerifyOTP = async function () {
   const otp = document.getElementById("gateOtp").value.trim();
-  const status = document.getElementById("firstLoginStatus");
 
-  if (!confirmationResult || !/^\\d{6}$/.test(otp)) {
+  if (!confirmationResult) {
+    status.textContent = "First tap Send OTP.";
+    return;
+  }
+
+  if (!/^\d{6}$/.test(otp)) {
     status.textContent = "Enter the 6-digit OTP.";
     return;
   }
 
   try {
+    status.textContent = "Verifying...";
     await confirmationResult.confirm(otp);
     status.textContent = "Login successful.";
   } catch (error) {
-    console.error("OTP verify error:", error);
-    const code = error && error.code ? error.code : "unknown-error";
-    status.textContent = code === "auth/invalid-verification-code"
-      ? "Invalid OTP. For the Firebase test number use 123456."
-      : "OTP verification failed: " + code + ".";
+    console.error("OTP verification error:", error);
+    status.textContent =
+      "OTP verification failed: " + (error.code || "unknown") +
+      (error.message ? " — " + error.message : "");
   }
 };
 </script>
