@@ -12,116 +12,173 @@
   <div id="firstLoginCard">
     <div style="text-align:center;font-size:48px">🚗 🏍️</div>
     <h1 style="text-align:center;margin:8px 0;font-size:24px">MOTORBIKE &amp; CAR ZONE</h1>
-    <p style="text-align:center;color:#666;margin-bottom:22px">Testing Login</p>
+    <p style="text-align:center;color:#666;margin-bottom:22px">Buy • Sell • Connect directly</p>
 
-    <p style="font-size:14px;color:#555;text-align:center">
-      OTP is temporarily disabled for testing. Choose how you want to test the app.
-    </p>
+    <label><b>Mobile Number</b></label>
+    <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
-    <button id="continueBuyer" class="primary" type="button">🚘 Continue as Buyer</button>
-    <button id="continueSeller" class="light" type="button">🏪 Continue as Seller</button>
+    <div id="gateRecaptcha" style="margin-top:10px"></div>
+    <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
-    <div id="firstLoginStatus" style="text-align:center">Test mode — no SMS, no billing.</div>
+    <div id="gateOtpArea" style="display:none">
+      <label style="display:block;margin-top:15px"><b>Enter OTP</b></label>
+      <input id="gateOtp" type="tel" placeholder="6-digit OTP" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+      <button class="primary" onclick="gateVerifyOTP()">Verify &amp; Continue</button>
+    </div>
+
+    <div id="firstLoginStatus">Mobile verification is required on first login.</div>
   </div>
 </div>
 
-<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search" style="display:flex;gap:8px;align-items:center"><span>🔍</span><input id="searchInput" type="search" placeholder="Search cars, bikes, brand or model" autocomplete="off" style="flex:1;min-width:0;border:0;outline:0;font-size:14px;background:transparent;color:#202124"><button id="searchBtn" class="primary" type="button" style="padding:9px 13px">Search</button></div></header>
+<header><div class="logo">🚗 MOTORBIKE & CAR ZONE 🏍️</div><div class="tag">Buy • Sell • Connect directly</div><div class="location">📍 Bangalore</div><div class="search">🔍 Search cars, bikes, brand or model</div></header>
 <main id="appContent" style="display:none">
-<section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="openBuySearch()"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
+<section id="home"><div class="grid" style="margin-top:15px"><div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars & bikes</div></div><div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div></div>
 <h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
 <h2>Featured Vehicles</h2><div id="vehicles"></div></section>
-<section id="details" class="hidden"><h2>Vehicle Details</h2><div id="detailsCard"></div><button class="light" style="margin-top:12px" onclick="show('home')">← Back to Vehicles</button></section>
 <section id="buyer" class="hidden"><h2>Buyer</h2><div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search, compare details and contact the seller directly.</p><button class="primary" onclick="show('home')">View Vehicles</button></div></section>
-<section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><input id="photos" type="file" accept="image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
-</main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="openBuySearch()">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
+<section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><label><b>Vehicle Photos</b></label><input id="photos" type="file" accept="image/*" multiple><label><b>Vehicle Documents</b></label><input id="documents" type="file" accept=".pdf,image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
+</main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="show('buyer')">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
 <script>
 const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
-function render(list=data){document.getElementById('vehicles').innerHTML=list.map((v,i)=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px;margin-right:6px" onclick="viewDetails('+i+',\''+encodeURIComponent(JSON.stringify(v))+'\')">View Details</button><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
+function render(list=data){document.getElementById('vehicles').innerHTML=list.map(v=>'<div class="card vehicle"><span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span><h3>'+v.name+'</h3><div class="spec">'+v.year+' • '+v.km+' • '+v.colour+'</div><div class="spec">📍 '+v.loc+'</div><div class="price">'+v.price+'</div><button class="light" style="margin-top:10px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button></div>').join('')}
 function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
-function searchVehicles(){const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();if(!q){render(data);return}render(data.filter(v=>[v.name,v.type,v.loc,v.colour,v.year,v.km,v.price].some(x=>String(x).toLowerCase().includes(q))))}
-function viewDetails(index,encoded){
-  const v=JSON.parse(decodeURIComponent(encoded));
-  document.getElementById('detailsCard').innerHTML=
-    '<div class="card">'+
-    '<span class="badge">'+(v.type==='car'?'CAR':'BIKE')+' • APPROVED DEMO</span>'+
-    '<h2 style="margin-top:14px">'+v.name+'</h2>'+
-    '<div class="spec"><b>Year:</b> '+v.year+'</div>'+
-    '<div class="spec"><b>KM Driven:</b> '+v.km+'</div>'+
-    '<div class="spec"><b>Colour:</b> '+v.colour+'</div>'+
-    '<div class="spec"><b>Location:</b> '+v.loc+'</div>'+
-    '<div class="price">'+v.price+'</div>'+
-    '<button class="primary" style="margin-top:12px" onclick="contact(\''+v.name+'\',\''+v.price+'\')">WhatsApp Seller</button>'+
-    '</div>';
-  show('details');
-}
-function openBuySearch(){
-  show('home');
-  const searchInput=document.getElementById('searchInput');
-  if(searchInput){
-    searchInput.focus();
-    searchInput.scrollIntoView({behavior:'smooth',block:'center'});
-  }
-}
 function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
 function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
-function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
-render();
-</script>
+async function submitVehicle(){
+  const statusEl=document.getElementById('status');
+  const req=['name','phone','model','year','km','amount','location'];
+  if(req.some(id=>!document.getElementById(id).value.trim())){
+    statusEl.textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';
+    return;
+  }
 
-<script>
-function testLogin(role) {
-  document.getElementById("firstLoginGate").style.display = "none";
-  document.getElementById("appContent").style.display = "block";
-  document.getElementById("appNav").style.display = "flex";
-  localStorage.setItem("mcz_test_role", role);
+  const user = auth.currentUser;
+  if(!user){
+    statusEl.textContent='Please login with your mobile number first.';
+    return;
+  }
 
-  if (role === "buyer") {
-    show("buyer");
-    document.getElementById("buyer").innerHTML =
-      '<h2>Buyer</h2>' +
-      '<div class="card">' +
-      '<p><b>Buyer Login Successful ✅</b></p>' +
-      '<p class="muted">You can now test vehicle browsing, filters and WhatsApp contact.</p>' +
-      '<button id="viewVehiclesBtn" class="primary" type="button">View Vehicles</button>' +
-      '</div>';
-    document.getElementById("viewVehiclesBtn").addEventListener("click", function () {
-      show("home");
-    });
-  } else {
-    show("seller");
-    document.getElementById("seller").innerHTML =
-      '<h2>Sell Your Vehicle</h2>' +
-      '<div class="card">' +
-      '<p><b>Seller Login Successful ✅</b></p>' +
-      '<p class="muted">Test the seller listing form. Submission will show Pending Admin Approval.</p>' +
-      '<div class="form">' +
-      '<select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>' +
-      '<input id="name" placeholder="Seller Name">' +
-      '<input id="phone" placeholder="Mobile Number" inputmode="tel">' +
-      '<input id="model" placeholder="Brand & Model">' +
-      '<input id="year" placeholder="Year" inputmode="numeric">' +
-      '<input id="km" placeholder="KM Driven" inputmode="numeric">' +
-      '<input id="colour" placeholder="Colour">' +
-      '<input id="location" placeholder="Location">' +
-      '<input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric">' +
-      '<input id="photos" type="file" accept="image/*" multiple>' +
-      '<textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea>' +
-      '<button id="submitVehicleBtn" class="primary" type="button">Submit Vehicle</button>' +
-      '<div id="status" class="muted"></div>' +
-      '</div></div>';
-    document.getElementById("submitVehicleBtn").addEventListener("click", submitVehicle);
+  const files = Array.from(document.getElementById('photos').files || []);
+  statusEl.textContent='Submitting vehicle...';
+
+  try{
+    // Storage is not enabled in this Firebase project yet, so this version
+    // safely saves the vehicle data and the selected file names as pending.
+    const vehicle = {
+      type: document.getElementById('type').value,
+      brand: document.getElementById('model').value.trim(),
+      model: document.getElementById('model').value.trim(),
+      sellerName: document.getElementById('name').value.trim(),
+      sellerPhone: document.getElementById('phone').value.trim(),
+      sellerId: user.uid,
+      year: Number(document.getElementById('year').value) || document.getElementById('year').value.trim(),
+      km: Number(document.getElementById('km').value) || document.getElementById('km').value.trim(),
+      colour: document.getElementById('colour').value.trim(),
+      location: document.getElementById('location').value.trim(),
+      amount: Number(document.getElementById('amount').value.replace(/[^0-9]/g,'')) || document.getElementById('amount').value.trim(),
+      notes: document.getElementById('notes').value.trim(),
+      status: 'pending',
+      photoFileNames: files.map(f=>f.name),
+      documentFileNames: Array.from(document.getElementById('documents').files || []).map(f=>f.name),
+      createdAt: serverTimestamp()
+    };
+
+    await addDoc(collection(db,'vehicles'), vehicle);
+
+    statusEl.innerHTML='<b>Submitted successfully.</b><br>Status: Pending Admin Approval.<br>Admin must approve before buyers can see it.';
+    document.getElementById('photos').value='';
+  }catch(error){
+    console.error(error);
+    statusEl.textContent='Could not submit vehicle: '+(error.message || error);
   }
 }
+render();
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("searchBtn").addEventListener("click", searchVehicles);
-  document.getElementById("searchInput").addEventListener("keydown", function(e){if(e.key==="Enter"){e.preventDefault();searchVehicles();}});
-  document.getElementById("continueBuyer").addEventListener("click", function () {
-    testLogin("buyer");
-  });
-  document.getElementById("continueSeller").addEventListener("click", function () {
-    testLogin("seller");
-  });
+const firebaseConfig = {
+  apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
+  authDomain: "motorbike--car-zone.firebaseapp.com",
+  projectId: "motorbike--car-zone",
+  storageBucket: "motorbike--car-zone.firebasestorage.app",
+  messagingSenderId: "604944422467",
+  appId: "1:604944422467:web:57f36ceb7b3f60326b26f6",
+  measurementId: "G-F9BFX3GFTB"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let confirmationResult = null;
+let recaptchaVerifier = null;
+
+const gate = document.getElementById("firstLoginGate");
+const appContent = document.getElementById("appContent");
+const appNav = document.getElementById("appNav");
+
+function showApp() {
+  gate.style.display = "none";
+  appContent.style.display = "block";
+  appNav.style.display = "flex";
+}
+
+function showGate() {
+  gate.style.display = "flex";
+  appContent.style.display = "none";
+  appNav.style.display = "none";
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) showApp();
+  else showGate();
 });
+
+window.gateSendOTP = async function () {
+  const phone = document.getElementById("gatePhone").value.trim();
+  const status = document.getElementById("firstLoginStatus");
+
+  if (!/^\+?[1-9]\d{9,14}$/.test(phone)) {
+    status.textContent = "Enter mobile number with country code, e.g. +9198951954077";
+    return;
+  }
+
+  status.textContent = "Sending OTP...";
+
+  try {
+    if (!recaptchaVerifier) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {size:"normal"});
+    }
+
+    confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+    document.getElementById("gateOtpArea").style.display = "block";
+    status.textContent = "OTP sent. Enter the 6-digit OTP.";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "OTP could not be sent. Check Phone Authentication, reCAPTCHA and Authorized Domains.";
+    try { recaptchaVerifier.clear(); } catch(e) {}
+    recaptchaVerifier = null;
+  }
+};
+
+window.gateVerifyOTP = async function () {
+  const otp = document.getElementById("gateOtp").value.trim();
+  const status = document.getElementById("firstLoginStatus");
+
+  if (!confirmationResult || !/^\d{6}$/.test(otp)) {
+    status.textContent = "Enter the 6-digit OTP.";
+    return;
+  }
+
+  try {
+    await confirmationResult.confirm(otp);
+    status.textContent = "Login successful.";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Invalid OTP. Please try again.";
+  }
+};
 </script>
 </body></html>
