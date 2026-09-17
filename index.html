@@ -17,7 +17,7 @@
     <label><b>Mobile Number</b></label>
     <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
-    <div id="gateRecaptcha" style="display:none"></div>
+    <div id="gateRecaptcha" style="margin-top:12px;min-height:78px"></div>
     <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
     <div id="gateOtpArea" style="display:none">
@@ -69,12 +69,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* Firebase fictional test-number mode.
-   Test number configured in Firebase Console:
-   +1 650-555-1234
-   Test OTP:
-   123456
-*/
+// DEVELOPMENT TEST ONLY.
+// Firebase Console test number: +1 650-555-1234
+// Test code: 123456
 auth.settings.appVerificationDisabledForTesting = true;
 
 let confirmationResult = null;
@@ -102,7 +99,7 @@ onAuthStateChanged(auth, (user) => {
   else showGate();
 });
 
-function clearRecaptcha() {
+function resetVerifier() {
   try {
     if (recaptchaVerifier) recaptchaVerifier.clear();
   } catch (e) {}
@@ -110,33 +107,36 @@ function clearRecaptcha() {
 }
 
 window.gateSendOTP = async function () {
-  const phone = document.getElementById("gatePhone").value.trim();
+  const phoneInput = document.getElementById("gatePhone");
+  const phone = phoneInput.value.trim().replace(/[\s()-]/g, "");
 
-  if (!phone) {
-    status.textContent = "Enter the mobile number.";
-    return;
-  }
-
-  // Accept both +16505551234 and +1 650-555-1234.
-  const normalized = phone.replace(/[\s()-]/g, "");
-  if (!/^\+[1-9]\d{9,14}$/.test(normalized)) {
+  if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
     status.textContent = "Enter number with country code, e.g. +9198951954077";
     return;
   }
 
-  status.textContent = "Sending test OTP...";
+  status.textContent = "Preparing test verification...";
 
   try {
-    clearRecaptcha();
+    resetVerifier();
 
-    // The test-number mode does not need a visible reCAPTCHA.
+    // IMPORTANT: visible verifier container is used for the Firebase test flow.
     recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {
-      size: "invisible"
+      size: "normal",
+      callback: () => {
+        status.textContent = "Verification ready. Sending...";
+      },
+      "expired-callback": () => {
+        status.textContent = "Verification expired. Tap Send OTP again.";
+      }
     });
+
+    // Render the verifier before signInWithPhoneNumber.
+    await recaptchaVerifier.render();
 
     confirmationResult = await signInWithPhoneNumber(
       auth,
-      normalized,
+      phone,
       recaptchaVerifier
     );
 
@@ -144,15 +144,10 @@ window.gateSendOTP = async function () {
     status.textContent = "Test OTP ready. Enter 123456.";
   } catch (error) {
     console.error("Firebase phone auth error:", error);
-    const code = error && error.code ? error.code : "unknown";
-    const message = error && error.message ? error.message : "";
-
     status.textContent =
-      "OTP error: " + code +
-      (message ? " — " + message : "") +
-      ". Check Firebase Phone test number and Authorized Domains.";
-
-    clearRecaptcha();
+      "OTP error: " + (error.code || "unknown") +
+      (error.message ? " — " + error.message : "");
+    resetVerifier();
   }
 };
 
@@ -176,8 +171,8 @@ window.gateVerifyOTP = async function () {
   } catch (error) {
     console.error("OTP verification error:", error);
     status.textContent =
-      "OTP verification failed: " +
-      (error.code || "unknown error") + ".";
+      "OTP verification failed: " + (error.code || "unknown") +
+      (error.message ? " — " + error.message : "");
   }
 };
 </script>
