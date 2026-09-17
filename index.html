@@ -72,58 +72,81 @@ let currentVehicleList = data.slice();
 function escapeHtml(value){
   return String(value ?? '').replace(/[&<>"']/g, function(ch){
     return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+  });
 }
 
 function render(list=data){
   currentVehicleList = list.slice();
-  const box=document.getElementById('vehicles');
+  const box = document.getElementById('vehicles');
 
   if(!list.length){
-    box.innerHTML='<div class="card muted">No vehicles found.</div>';
+    box.innerHTML = '<div class="card muted">No vehicles found.</div>';
     return;
   }
 
-  box.innerHTML=list.map((v,i)=>`
-    <div class="card vehicle">
-      <span class="badge">${v.type==='car'?'CAR':'BIKE'} • APPROVED DEMO</span>
-      <h3>${escapeHtml(v.name)}</h3>
-      <div class="spec">${escapeHtml(v.year)} • ${escapeHtml(v.km)} • ${escapeHtml(v.colour)}</div>
-      <div class="spec">📍 ${escapeHtml(v.loc)}</div>
-      <div class="price">${escapeHtml(v.price)}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="light" type="button" style="margin-top:0" onclick="viewDetails(${i})">View Details</button>
-        <button class="primary" type="button" style="margin-top:0" onclick="contactByIndex(${i})">WhatsApp Seller</button>
-      </div>
-    </div>`).join('');
+  box.innerHTML = list.map(function(v, i){
+    return `
+      <div class="card vehicle">
+        <span class="badge">${v.type === 'car' ? 'CAR' : 'BIKE'} • APPROVED DEMO</span>
+        <h3>${escapeHtml(v.name)}</h3>
+        <div class="spec">${escapeHtml(v.year)} • ${escapeHtml(v.km)} • ${escapeHtml(v.colour)}</div>
+        <div class="spec">📍 ${escapeHtml(v.loc)}</div>
+        <div class="price">${escapeHtml(v.price)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="light" type="button" onclick="viewDetails(${i})">View Details</button>
+          <button class="primary" type="button" onclick="contactByIndex(${i})">WhatsApp Seller</button>
+        </div>
+      </div>`;
+  }).join('');
 }
 
-function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
-function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
-function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
-function runSearch(){
-  const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();
-  if(!q){ render(data); return; }
-  const result=data.filter(v =>
-    [v.type,v.name,v.year,v.km,v.loc,v.price,v.colour]
-      .some(x=>String(x).toLowerCase().includes(q))
+function filterVehicles(t){
+  render(t === 'all' ? data : data.filter(function(v){ return v.type === t; }));
+}
+
+function show(id){
+  ['home','buyer','seller'].forEach(function(x){
+    document.getElementById(x).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+function contact(model, price){
+  window.open(
+    'https://wa.me/918951954077?text=' +
+    encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in ' + model + ' listed at ' + price + '.'),
+    '_blank'
   );
+}
+
+function runSearch(){
+  const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  if(!q){
+    render(data);
+    return;
+  }
+
+  const result = data.filter(function(v){
+    return [v.type,v.name,v.year,v.km,v.loc,v.price,v.colour]
+      .some(function(x){ return String(x).toLowerCase().includes(q); });
+  });
+
   render(result);
 }
-document.getElementById('searchInput')?.addEventListener('keydown', function(e){
-  if(e.key==='Enter') runSearch();
-});
 
 function viewDetails(index){
-  const v=currentVehicleList[index];
+  const v = currentVehicleList[index];
+
   if(!v){
-    alert("Vehicle details not found.");
+    alert('Vehicle details not found.');
     return;
   }
 
   document.getElementById('detailsTitle').textContent = v.name || 'Vehicle Details';
 
   document.getElementById('detailsBody').innerHTML = `
-    <div class="detailRow"><div class="detailLabel">Vehicle Type</div><div class="detailValue">${escapeHtml(v.type==='car'?'Car':'Bike')}</div></div>
+    <div class="detailRow"><div class="detailLabel">Vehicle Type</div><div class="detailValue">${escapeHtml(v.type === 'car' ? 'Car' : 'Bike')}</div></div>
     <div class="detailRow"><div class="detailLabel">Brand / Model</div><div class="detailValue">${escapeHtml(v.name)}</div></div>
     <div class="detailRow"><div class="detailLabel">Year</div><div class="detailValue">${escapeHtml(v.year)}</div></div>
     <div class="detailRow"><div class="detailLabel">KM Driven</div><div class="detailValue">${escapeHtml(v.km)}</div></div>
@@ -136,17 +159,21 @@ function viewDetails(index){
     contact(v.name, v.price);
   };
 
-  document.getElementById('detailsModal').style.display='flex';
+  document.getElementById('detailsModal').style.display = 'flex';
 }
 
 function contactByIndex(index){
-  const v=currentVehicleList[index];
+  const v = currentVehicleList[index];
   if(v) contact(v.name, v.price);
 }
 
 function closeDetails(){
-  document.getElementById('detailsModal').style.display='none';
+  document.getElementById('detailsModal').style.display = 'none';
 }
+
+document.getElementById('searchInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') runSearch();
+});
 
 function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
 render();
@@ -219,7 +246,7 @@ window.gateSendOTP = async function () {
     return;
   }
 
-  status.textContent = "Preparing test verification...";
+  status.textContent = "Preparing phone verification...";
 
   try {
     resetVerifier();
@@ -245,7 +272,7 @@ window.gateSendOTP = async function () {
     );
 
     document.getElementById("gateOtpArea").style.display = "block";
-    status.textContent = "Test OTP ready. Enter 123456.";
+    status.textContent = "OTP sent. Enter the 6-digit code.";
   } catch (error) {
     console.error("Firebase phone auth error:", error);
     status.textContent =
