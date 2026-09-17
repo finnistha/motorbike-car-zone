@@ -17,7 +17,7 @@
     <label><b>Mobile Number</b></label>
     <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
-    <div id="gateRecaptcha" style="margin-top:10px"></div>
+    <div id="gateRecaptcha" style="display:none"></div>
     <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
     <div id="gateOtpArea" style="display:none">
@@ -36,7 +36,7 @@
 <h2>Vehicle Type</h2><div class="chips"><button class="chip" onclick="filterVehicles('all')">All</button><button class="chip" onclick="filterVehicles('car')">🚗 Cars</button><button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button></div>
 <h2>Featured Vehicles</h2><div id="vehicles"></div></section>
 <section id="buyer" class="hidden"><h2>Buyer</h2><div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search, compare details and contact the seller directly.</p><button class="primary" onclick="show('home')">View Vehicles</button></div></section>
-<section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><label><b>Vehicle Photos</b></label><input id="photos" type="file" accept="image/*" multiple><label><b>Vehicle Documents</b></label><input id="documents" type="file" accept=".pdf,image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
+<section id="seller" class="hidden"><h2>Sell Your Vehicle</h2><div class="card"><div class="form"><select id="type"><option value="car">Car</option><option value="bike">Bike</option></select><input id="name" placeholder="Seller Name"><input id="phone" placeholder="Mobile Number" inputmode="tel"><input id="model" placeholder="Brand & Model"><input id="year" placeholder="Year" inputmode="numeric"><input id="km" placeholder="KM Driven" inputmode="numeric"><input id="colour" placeholder="Colour"><input id="location" placeholder="Location"><input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric"><input id="photos" type="file" accept="image/*" multiple><textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea><button class="primary" onclick="submitVehicle()">Submit Vehicle</button><div id="status" class="muted"></div></div></div></section>
 </main><div id="appNav" class="nav" style="display:none"><button onclick="show('home')">🏠<br>Home</button><button onclick="show('buyer')">🔍<br>Buy</button><button onclick="show('seller')">➕<br>Sell</button></div>
 <script>
 const data=[{type:'car',name:'Hyundai i20',year:2019,km:'52,000 KM',loc:'Bangalore',price:'₹6,50,000',colour:'White'},{type:'bike',name:'Royal Enfield Classic 350',year:2021,km:'18,000 KM',loc:'Bangalore',price:'₹1,80,000',colour:'Black'},{type:'car',name:'Honda City',year:2018,km:'45,000 KM',loc:'Bangalore',price:'₹8,80,000',colour:'Blue'},{type:'bike',name:'Yamaha R15 V3',year:2020,km:'20,000 KM',loc:'Bangalore',price:'₹1,75,000',colour:'Black'}];
@@ -44,60 +44,12 @@ function render(list=data){document.getElementById('vehicles').innerHTML=list.ma
 function filterVehicles(t){render(t==='all'?data:data.filter(v=>v.type===t))}
 function show(id){['home','buyer','seller'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');scrollTo(0,0)}
 function contact(model,price){window.open('https://wa.me/918951954077?text='+encodeURIComponent('Hello MOTORBIKE & CAR ZONE, I am interested in '+model+' listed at '+price+'.'),'_blank')}
-async function submitVehicle(){
-  const statusEl=document.getElementById('status');
-  const req=['name','phone','model','year','km','amount','location'];
-  if(req.some(id=>!document.getElementById(id).value.trim())){
-    statusEl.textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';
-    return;
-  }
-
-  const user = auth.currentUser;
-  if(!user){
-    statusEl.textContent='Please login with your mobile number first.';
-    return;
-  }
-
-  const files = Array.from(document.getElementById('photos').files || []);
-  statusEl.textContent='Submitting vehicle...';
-
-  try{
-    // Storage is not enabled in this Firebase project yet, so this version
-    // safely saves the vehicle data and the selected file names as pending.
-    const vehicle = {
-      type: document.getElementById('type').value,
-      brand: document.getElementById('model').value.trim(),
-      model: document.getElementById('model').value.trim(),
-      sellerName: document.getElementById('name').value.trim(),
-      sellerPhone: document.getElementById('phone').value.trim(),
-      sellerId: user.uid,
-      year: Number(document.getElementById('year').value) || document.getElementById('year').value.trim(),
-      km: Number(document.getElementById('km').value) || document.getElementById('km').value.trim(),
-      colour: document.getElementById('colour').value.trim(),
-      location: document.getElementById('location').value.trim(),
-      amount: Number(document.getElementById('amount').value.replace(/[^0-9]/g,'')) || document.getElementById('amount').value.trim(),
-      notes: document.getElementById('notes').value.trim(),
-      status: 'pending',
-      photoFileNames: files.map(f=>f.name),
-      documentFileNames: Array.from(document.getElementById('documents').files || []).map(f=>f.name),
-      createdAt: serverTimestamp()
-    };
-
-    await addDoc(collection(db,'vehicles'), vehicle);
-
-    statusEl.innerHTML='<b>Submitted successfully.</b><br>Status: Pending Admin Approval.<br>Admin must approve before buyers can see it.';
-    document.getElementById('photos').value='';
-  }catch(error){
-    console.error(error);
-    statusEl.textContent='Could not submit vehicle: '+(error.message || error);
-  }
-}
+function submitVehicle(){const req=['name','phone','model','year','km','amount','location'];if(req.some(id=>!document.getElementById(id).value.trim())){document.getElementById('status').textContent='Please fill Name, Mobile, Model, Year, KM, Amount and Location.';return}document.getElementById('status').innerHTML='<b>Submitted successfully.</b> Status: Pending Admin Approval.'}
 render();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
@@ -111,7 +63,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 let confirmationResult = null;
 let recaptchaVerifier = null;
 
@@ -149,7 +100,7 @@ window.gateSendOTP = async function () {
 
   try {
     if (!recaptchaVerifier) {
-      recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {size:"normal"});
+      recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {size:"invisible"});
     }
 
     confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
@@ -157,7 +108,7 @@ window.gateSendOTP = async function () {
     status.textContent = "OTP sent. Enter the 6-digit OTP.";
   } catch (error) {
     console.error(error);
-    status.textContent = "OTP could not be sent. Check Phone Authentication, reCAPTCHA and Authorized Domains.";
+    status.textContent = "OTP could not be sent: " + (error.code || "unknown error") + ". Please try again later.";
     try { recaptchaVerifier.clear(); } catch(e) {}
     recaptchaVerifier = null;
   }
