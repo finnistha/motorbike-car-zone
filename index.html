@@ -17,7 +17,7 @@
     <label><b>Mobile Number</b></label>
     <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
 
-    <div id="gateRecaptcha" style="margin-top:12px;min-height:78px"></div>
+    <div id="gateRecaptcha" style="margin-top:12px;min-height:10px"></div>
     <button class="primary" onclick="gateSendOTP()">Send OTP</button>
 
     <div id="gateOtpArea" style="display:none">
@@ -26,7 +26,7 @@
       <button class="primary" onclick="gateVerifyOTP()">Verify &amp; Continue</button>
     </div>
 
-    <div id="firstLoginStatus">Mobile verification is required on first login.</div>
+    <div id="firstLoginStatus">Mobile verification is required on first login.<br><small>Firebase test: +1 650-555-1234 → OTP 123456</small></div>
   </div>
 </div>
 
@@ -49,12 +49,7 @@ render();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {
-  getAuth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
@@ -68,19 +63,29 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-// DEVELOPMENT TEST ONLY.
-// Firebase Console test number: +1 650-555-1234
-// Test code: 123456
-auth.settings.appVerificationDisabledForTesting = true;
-
 let confirmationResult = null;
 let recaptchaVerifier = null;
+
+const TEST_PHONE = "+16505551234";
+
+function normalizePhone(value) {
+  return value.replace(/[\\s()-]/g, "");
+}
+
+function isFirebaseTestPhone(phone) {
+  return normalizePhone(phone) === TEST_PHONE;
+}
+
+function resetRecaptcha() {
+  try {
+    if (recaptchaVerifier) recaptchaVerifier.clear();
+  } catch (e) {}
+  recaptchaVerifier = null;
+}
 
 const gate = document.getElementById("firstLoginGate");
 const appContent = document.getElementById("appContent");
 const appNav = document.getElementById("appNav");
-const status = document.getElementById("firstLoginStatus");
 
 function showApp() {
   gate.style.display = "none";
@@ -99,80 +104,77 @@ onAuthStateChanged(auth, (user) => {
   else showGate();
 });
 
-function resetVerifier() {
-  try {
-    if (recaptchaVerifier) recaptchaVerifier.clear();
-  } catch (e) {}
-  recaptchaVerifier = null;
-}
-
 window.gateSendOTP = async function () {
-  const phoneInput = document.getElementById("gatePhone");
-  const phone = phoneInput.value.trim().replace(/[\s()-]/g, "");
+  const input = document.getElementById("gatePhone");
+  const phone = normalizePhone(input.value.trim());
+  const status = document.getElementById("firstLoginStatus");
 
-  if (!/^\+[1-9]\d{9,14}$/.test(phone)) {
-    status.textContent = "Enter number with country code, e.g. +9198951954077";
+  if (!/^\\+?[1-9]\\d{9,14}$/.test(phone)) {
+    status.textContent = "Enter mobile number with country code, e.g. +9198951954077";
     return;
   }
 
-  status.textContent = "Preparing test verification...";
+  status.textContent = "Preparing OTP verification...";
 
   try {
-    resetVerifier();
+    // Use Firebase test-mode app verification ONLY for the exact fictional test number.
+    // Real customer phone numbers continue to use reCAPTCHA.
+    auth.settings.appVerificationDisabledForTesting = isFirebaseTestPhone(phone);
 
-    // IMPORTANT: visible verifier container is used for the Firebase test flow.
+    resetRecaptcha();
+
     recaptchaVerifier = new RecaptchaVerifier(auth, "gateRecaptcha", {
-      size: "normal",
-      callback: () => {
-        status.textContent = "Verification ready. Sending...";
-      },
-      "expired-callback": () => {
-        status.textContent = "Verification expired. Tap Send OTP again.";
-      }
+      size: "invisible"
     });
 
-    // Render the verifier before signInWithPhoneNumber.
-    await recaptchaVerifier.render();
-
-    confirmationResult = await signInWithPhoneNumber(
-      auth,
-      phone,
-      recaptchaVerifier
-    );
-
+    confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
     document.getElementById("gateOtpArea").style.display = "block";
-    status.textContent = "Test OTP ready. Enter 123456.";
+
+    status.textContent = isFirebaseTestPhone(phone)
+      ? "Test OTP ready. Enter 123456."
+      : "OTP sent. Enter the 6-digit OTP.";
   } catch (error) {
-    console.error("Firebase phone auth error:", error);
-    status.textContent =
-      "OTP error: " + (error.code || "unknown") +
-      (error.message ? " — " + error.message : "");
-    resetVerifier();
+    console.error("Phone Auth error:", error);
+    const code = error && error.code ? error.code : "unknown-error";
+    let message = "OTP could not be sent: " + code + ".";
+
+    if (code === "auth/billing-not-enabled") {
+      message += " Real SMS OTP requires Firebase billing/Blaze.";
+    } else if (code === "auth/invalid-phone-number") {
+      message += " Check the phone number format.";
+    } else if (code === "auth/too-many-requests") {
+      message += " Too many attempts. Try again later.";
+    } else if (code === "auth/invalid-app-credential" || code === "auth/captcha-check-failed") {
+      message += " reCAPTCHA verification failed. Refresh the page and try again.";
+    } else if (code === "auth/internal-error") {
+      message += " Refresh the page and test with +1 650-555-1234.";
+    } else {
+      message += " Refresh the page and try again.";
+    }
+
+    status.textContent = message;
+    resetRecaptcha();
   }
 };
 
 window.gateVerifyOTP = async function () {
   const otp = document.getElementById("gateOtp").value.trim();
+  const status = document.getElementById("firstLoginStatus");
 
-  if (!confirmationResult) {
-    status.textContent = "First tap Send OTP.";
-    return;
-  }
-
-  if (!/^\d{6}$/.test(otp)) {
+  if (!confirmationResult || !/^\\d{6}$/.test(otp)) {
     status.textContent = "Enter the 6-digit OTP.";
     return;
   }
 
   try {
-    status.textContent = "Verifying...";
     await confirmationResult.confirm(otp);
     status.textContent = "Login successful.";
   } catch (error) {
-    console.error("OTP verification error:", error);
-    status.textContent =
-      "OTP verification failed: " + (error.code || "unknown") +
-      (error.message ? " — " + error.message : "");
+    console.error("OTP verify error:", error);
+    const code = error && error.code ? error.code : "unknown-error";
+    status.textContent = code === "auth/invalid-verification-code"
+      ? "Invalid OTP. For the Firebase test number use 123456."
+      : "OTP verification failed: " + code + ".";
   }
 };
 </script>
