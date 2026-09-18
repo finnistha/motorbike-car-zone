@@ -76,6 +76,23 @@ h2{font-size:19px;margin:22px 0 12px}
   </div>
 </div>
 
+
+<div id="buyerLoginModal" style="position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;padding:0">
+  <div style="width:100%;max-width:700px;background:#fff;border-radius:24px 24px 0 0;padding:22px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Buyer Login</h2>
+      <button class="light" onclick="closeBuyerLogin()">✕ Close</button>
+    </div>
+    <p class="muted">Buyer login is not required. You can browse, view details and contact Motorbike &amp; Car Zone directly.</p>
+    <input id="buyerEmail" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px;margin-top:8px">
+    <input id="buyerPassword" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px;margin-top:10px">
+    <button class="primary" style="width:100%;margin-top:10px" onclick="buyerLogin()">Login</button>
+    <button class="light" style="width:100%;margin-top:10px" onclick="buyerSignup()">Create Buyer Account</button>
+    <button class="light" style="width:100%;margin-top:10px" onclick="buyerResetPassword()">Forgot Password</button>
+    <div id="buyerLoginStatus" class="muted" style="margin-top:10px;min-height:20px"></div>
+  </div>
+</div>
+
 <div id="detailsModal" onclick="if(event.target===this)closeDetails()">
   <div id="detailsCard">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
@@ -224,6 +241,82 @@ function showApp(){
 function showGate(){
   gate.style.display="flex"; appContent.style.display="none"; appNav.style.display="none";
 }
+
+let pendingBuyerContact = null;
+
+window.openBuyerLogin=function(model,price){
+  pendingBuyerContact={model,price};
+  document.getElementById("buyerLoginStatus").textContent="";
+  document.getElementById("buyerLoginModal").style.display="flex";
+};
+
+window.closeBuyerLogin=function(){
+  document.getElementById("buyerLoginModal").style.display="none";
+};
+
+window.buyerLogin=async function(){
+  const email=document.getElementById("buyerEmail").value.trim();
+  const password=document.getElementById("buyerPassword").value;
+  if(!email || !password){
+    document.getElementById("buyerLoginStatus").textContent="Enter email and password.";
+    return;
+  }
+  try{
+    document.getElementById("buyerLoginStatus").textContent="Signing in...";
+    const result=await signInWithEmailAndPassword(auth,email,password);
+    closeBuyerLogin();
+    if(pendingBuyerContact){
+      contact(pendingBuyerContact.model,pendingBuyerContact.price);
+      pendingBuyerContact=null;
+    }
+    // Keep buyer browsing flow; buyer login is only for contact.
+    buyerMode=false;
+    currentUser=result.user;
+  }catch(error){
+    console.error(error);
+    document.getElementById("buyerLoginStatus").textContent="Login error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
+  }
+};
+
+window.buyerSignup=async function(){
+  const email=document.getElementById("buyerEmail").value.trim();
+  const password=document.getElementById("buyerPassword").value;
+  if(!email || !password){
+    document.getElementById("buyerLoginStatus").textContent="Enter email and password.";
+    return;
+  }
+  if(password.length<6){
+    document.getElementById("buyerLoginStatus").textContent="Password must be at least 6 characters.";
+    return;
+  }
+  try{
+    document.getElementById("buyerLoginStatus").textContent="Creating buyer account...";
+    await createUserWithEmailAndPassword(auth,email,password);
+    closeBuyerLogin();
+    if(pendingBuyerContact){
+      contact(pendingBuyerContact.model,pendingBuyerContact.price);
+      pendingBuyerContact=null;
+    }
+  }catch(error){
+    console.error(error);
+    document.getElementById("buyerLoginStatus").textContent="Account error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
+  }
+};
+
+window.buyerResetPassword=async function(){
+  const email=document.getElementById("buyerEmail").value.trim();
+  if(!email){
+    document.getElementById("buyerLoginStatus").textContent="Enter your email first.";
+    return;
+  }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    document.getElementById("buyerLoginStatus").textContent="Password reset email sent. Check your email.";
+  }catch(error){
+    console.error(error);
+    document.getElementById("buyerLoginStatus").textContent="Reset error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
+  }
+};
 
 window.sellerLogout=async function(){
   await signOut(auth);
