@@ -42,6 +42,13 @@ h2{font-size:19px;margin:22px 0 12px}
 .linkList a{display:block;margin-top:8px;word-break:break-all}
 .progress{font-size:13px;color:#5b3cc4;min-height:18px}
 @media(min-width:700px){#detailsModal{align-items:center;padding:20px}#detailsCard{border-radius:24px}}
+
+.mainPhotoGallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:86px 86px;gap:6px;margin-top:13px;height:178px}
+.mainPhoto{grid-row:1/3;overflow:hidden;border-radius:12px;background:#eef0ff}
+.mainPhoto img,.smallPhoto img{width:100%;height:100%;object-fit:cover;display:block}
+.smallPhoto{overflow:hidden;border-radius:10px;background:#eef0ff}
+.morePhotos{display:flex;align-items:center;justify-content:center;border-radius:10px;background:#333;color:#fff;font-size:22px;font-weight:800}
+@media(max-width:420px){.mainPhotoGallery{height:150px;grid-template-rows:72px 72px}}
 </style>
 </head>
 <body>
@@ -71,7 +78,7 @@ h2{font-size:19px;margin:22px 0 12px}
       <button class="light" onclick="closeDetails()">✕ Close</button>
     </div>
     <div id="detailsBody" style="margin-top:10px"></div>
-    <button id="detailsWhatsApp" class="primary" style="width:100%;margin-top:15px">WhatsApp Seller</button>
+    <button id="detailsWhatsApp" class="primary" style="width:100%;margin-top:15px">Contact Motorbike &amp; Car Zone</button>
   </div>
 </div>
 
@@ -103,7 +110,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <section id="buyer" class="hidden">
   <h2>Buyer</h2>
-  <div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search, view photos/details and contact the seller directly.</p><button class="primary" onclick="show('home')">View Vehicles</button></div>
+  <div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search and view vehicle photos/details. Contact Motorbike & Car Zone for enquiries.</p><button class="primary" onclick="show('home')">View Vehicles</button></div>
 </section>
 
 <section id="seller" class="hidden">
@@ -299,16 +306,23 @@ window.render=function(list=currentVehicleList){
   if(!list.length){box.innerHTML='<div class="card muted">No vehicles found.</div>';return;}
   box.innerHTML=list.map((v,i)=>{
     const badge=v.demo?'<span class="badge approved">APPROVED DEMO</span>':'<span class="badge approved">APPROVED</span>';
+    const photos=Array.isArray(v.photoUrls)?v.photoUrls.filter(Boolean):[];
+    const photoHtml=photos.length?`
+      <div class="mainPhotoGallery">
+        <div class="mainPhoto"><img src="${escapeHtml(photos[0])}" alt="Vehicle photo" loading="lazy"></div>
+        ${photos.slice(1,4).map(u=>`<div class="smallPhoto"><img src="${escapeHtml(u)}" alt="Vehicle photo" loading="lazy"></div>`).join("")}
+        ${photos.length>4?`<div class="morePhotos">+${photos.length-4}</div>`:""}
+      </div>`:"";
     return `<div class="card vehicle">
       ${badge}
+      ${photoHtml}
       <h3>${escapeHtml(v.name)}</h3>
       <div class="spec">${escapeHtml(v.year)} • ${escapeHtml(v.km)} • ${escapeHtml(v.colour)}</div>
       <div class="spec">📍 ${escapeHtml(v.loc)}</div>
       <div class="price">${escapeHtml(v.price)}</div>
-      ${v.photoUrls?.length?`<div class="spec">📷 ${v.photoUrls.length} vehicle photo(s)</div>`:""}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="light" onclick="viewDetails(${i})">View Details</button>
-        <button class="primary" onclick="contactByIndex(${i})">WhatsApp Seller</button>
+        <button class="primary" onclick="contactByIndex(${i})">Contact Motorbike &amp; Car Zone</button>
       </div>
     </div>`;
   }).join("");
@@ -324,7 +338,7 @@ window.runSearch=function(){
   const all=demoVehicles.concat(currentVehicleList.filter(v=>!v.demo));
   if(!q){render(all);return;}
   render(all.filter(v=>[
-    v.type,v.name,v.year,v.km,v.loc,v.price,v.colour,v.sellerName
+    v.type,v.name,v.year,v.km,v.loc,v.price,v.colour
   ].some(x=>String(x??"").toLowerCase().includes(q))));
 };
 
@@ -342,15 +356,14 @@ window.show=function(id){
   }
 };
 
-function contact(model,price,phone){
-  const target=(phone||"").replace(/\D/g,"");
-  const number=target.length>=10?target:"918951954077";
-  const msg="Hello MOTORBIKE & CAR ZONE, I am interested in "+model+" listed at "+price+".";
+function contact(model,price){
+  const number="918951954077";
+  const msg="Hello MOTORBIKE & CAR ZONE, I am interested in "+model+" listed at "+price+". Please help me with this vehicle.";
   window.open("https://wa.me/"+number+"?text="+encodeURIComponent(msg),"_blank");
 }
 window.contactByIndex=function(index){
   const v=currentVehicleList[index];
-  if(v) contact(v.name,v.price,v.sellerPhone);
+  if(v) contact(v.name,v.price);
 };
 
 window.viewDetails=function(index){
@@ -366,22 +379,18 @@ window.viewDetails=function(index){
   html+=row("Colour",v.colour);
   html+=row("Location",v.loc);
   html+=row("Selling Price",v.price);
-  if(v.sellerName) html+=row("Seller",v.sellerName);
-  if(v.notes) html+=row("Details",v.notes);
+  if(v.notes) html+=row("Vehicle Details",v.notes);
   if(v.photoUrls?.length){
     html+=`<div class="detailRow"><div class="detailLabel">Vehicle Photos</div><div class="mediaGrid">${
-      v.photoUrls.map(u=>`<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img src="${escapeHtml(u)}" alt="Vehicle photo"></a>`).join("")
-    }</div></div>`;
-  }
-  if(v.documentUrls && Object.keys(v.documentUrls).length){
-    html+=`<div class="detailRow"><div class="detailLabel">Documents</div><div class="linkList">${
-      Object.entries(v.documentUrls).map(([k,u])=>`<a href="${escapeHtml(u)}" target="_blank" rel="noopener">📄 ${escapeHtml(k.toUpperCase())} — Open document</a>`).join("")
+      v.photoUrls.map(u=>`<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img src="${escapeHtml(u)}" alt="Vehicle photo" loading="lazy"></a>`).join("")
     }</div></div>`;
   }
   document.getElementById("detailsBody").innerHTML=html;
-  document.getElementById("detailsWhatsApp").onclick=()=>contact(v.name,v.price,v.sellerPhone);
+  document.getElementById("detailsWhatsApp").textContent="Contact Motorbike & Car Zone";
+  document.getElementById("detailsWhatsApp").onclick=()=>contact(v.name,v.price);
   document.getElementById("detailsModal").style.display="flex";
 };
+
 window.closeDetails=function(){document.getElementById("detailsModal").style.display="none";};
 
 async function uploadToCloudinary(file){
