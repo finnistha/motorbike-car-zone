@@ -57,17 +57,22 @@ h2{font-size:19px;margin:22px 0 12px}
   <div id="firstLoginCard">
     <div style="text-align:center;font-size:48px">🚗 🏍️</div>
     <h1 style="text-align:center;margin:8px 0;font-size:24px">MOTORBIKE &amp; CAR ZONE</h1>
-    <p style="text-align:center;color:#666;margin-bottom:22px">Buy • Sell • Connect directly</p>
-    <label><b>Mobile Number</b></label>
-    <input id="gatePhone" type="tel" placeholder="+91 9876543210" inputmode="tel" autocomplete="tel">
-    <div id="gateRecaptcha"></div>
-    <button class="primary" onclick="gateSendOTP()">Send OTP</button>
-    <div id="gateOtpArea" style="display:none">
-      <label style="display:block;margin-top:15px"><b>Enter OTP</b></label>
-      <input id="gateOtp" type="tel" placeholder="6-digit OTP" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
-      <button class="primary" onclick="gateVerifyOTP()">Verify &amp; Continue</button>
+    <p style="text-align:center;color:#666;margin-bottom:22px">Buy without login • Seller login with email</p>
+
+    <button class="primary" onclick="continueAsBuyer()">🚘 Continue as Buyer</button>
+    <button class="light" onclick="openSellerLogin()">🏪 Seller Login</button>
+
+    <div id="sellerLoginArea" style="display:none;margin-top:18px">
+      <label><b>Seller Email</b></label>
+      <input id="sellerEmail" type="email" placeholder="seller@example.com" autocomplete="email">
+      <label style="display:block;margin-top:12px"><b>Password</b></label>
+      <input id="sellerPassword" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="primary" onclick="sellerLogin()">Login as Seller</button>
+      <button class="light" onclick="sellerSignup()">Create Seller Account</button>
+      <button class="light" onclick="sellerResetPassword()">Forgot Password</button>
     </div>
-    <div id="firstLoginStatus">Mobile verification is required on first login.</div>
+
+    <div id="firstLoginStatus">Buyers can enter without login. Sellers must login with email and password.</div>
   </div>
 </div>
 
@@ -84,7 +89,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <header>
   <div class="logo">🚗 MOTORBIKE &amp; CAR ZONE 🏍️</div>
-  <div class="tag">Buy • Sell • Connect directly</div>
+  <div class="tag">Buy without login • Sell with email login</div>
   <div class="location">📍 Bangalore</div>
   <div class="search">
     <input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model">
@@ -115,7 +120,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <section id="seller" class="hidden">
   <h2>Sell Your Vehicle</h2>
-  <div class="card">
+  <div class="card"><p class="muted">Seller login is required. Your email is used for seller account login; buyer customers will not see your seller contact details.</p>
     <div class="form">
       <select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>
       <input id="name" placeholder="Seller Name">
@@ -161,12 +166,14 @@ h2{font-size:19px;margin:22px 0 12px}
   <button onclick="show('home')">🏠<br>Home</button>
   <button onclick="show('buyer')">🔍<br>Buy</button>
   <button onclick="show('seller')">➕<br>Sell</button>
+  <button id="sellerLogoutBtn" onclick="sellerLogout()" style="display:none">🚪<br>Logout</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
-  getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  sendPasswordResetEmail, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs
@@ -190,10 +197,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let confirmationResult = null;
-let recaptchaVerifier = null;
 let currentUser = null;
 let currentVehicleList = [];
+let buyerMode = false;
 
 const demoVehicles = [
   {type:"car",name:"Hyundai i20",year:2019,km:"52,000 KM",loc:"Bangalore",price:"₹6,50,000",colour:"White",demo:true,status:"approved"},
@@ -212,58 +218,96 @@ function escapeHtml(value){
 }
 function showApp(){
   gate.style.display="none"; appContent.style.display="block"; appNav.style.display="flex";
+  document.getElementById("sellerLogoutBtn").style.display=currentUser ? "block" : "none";
   loadApprovedVehicles();
 }
 function showGate(){
   gate.style.display="flex"; appContent.style.display="none"; appNav.style.display="none";
 }
-function resetVerifier(){
-  try{ if(recaptchaVerifier) recaptchaVerifier.clear(); }catch(e){}
-  recaptchaVerifier=null;
-}
 
-window.gateSendOTP = async function(){
-  const phone=document.getElementById("gatePhone").value.trim().replace(/[\s()-]/g,"");
-  if(!/^\+[1-9]\d{9,14}$/.test(phone)){
-    loginStatus.textContent="Enter number with country code, e.g. +9198951954077";
+window.sellerLogout=async function(){
+  await signOut(auth);
+  buyerMode=false;
+  showGate();
+  document.getElementById("sellerLoginArea").style.display="none";
+  loginStatus.textContent="Buyer can continue without login, or seller can login with email.";
+};
+
+window.continueAsBuyer=function(){
+  buyerMode=true;
+  currentUser=null;
+  showApp();
+};
+
+window.openSellerLogin=function(){
+  document.getElementById("sellerLoginArea").style.display="block";
+  loginStatus.textContent="Seller login: enter your email and password.";
+  document.getElementById("sellerEmail").focus();
+};
+
+window.sellerLogin=async function(){
+  const email=document.getElementById("sellerEmail").value.trim();
+  const password=document.getElementById("sellerPassword").value;
+  if(!email || !password){
+    loginStatus.textContent="Enter seller email and password.";
     return;
   }
-  loginStatus.textContent="Preparing phone verification...";
   try{
-    resetVerifier();
-    recaptchaVerifier=new RecaptchaVerifier(auth,"gateRecaptcha",{
-      size:"normal",
-      callback:()=>{loginStatus.textContent="Verification ready. Sending OTP...";},
-      "expired-callback":()=>{loginStatus.textContent="Verification expired. Tap Send OTP again.";}
-    });
-    await recaptchaVerifier.render();
-    confirmationResult=await signInWithPhoneNumber(auth,phone,recaptchaVerifier);
-    document.getElementById("gateOtpArea").style.display="block";
-    loginStatus.textContent="OTP sent. Enter the 6-digit code.";
+    loginStatus.textContent="Signing in...";
+    await signInWithEmailAndPassword(auth,email,password);
+    buyerMode=false;
   }catch(error){
     console.error(error);
-    loginStatus.textContent="OTP error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-    resetVerifier();
+    loginStatus.textContent="Login error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
   }
 };
 
-window.gateVerifyOTP = async function(){
-  const otp=document.getElementById("gateOtp").value.trim();
-  if(!confirmationResult){loginStatus.textContent="First tap Send OTP.";return;}
-  if(!/^\d{6}$/.test(otp)){loginStatus.textContent="Enter the 6-digit OTP.";return;}
+window.sellerSignup=async function(){
+  const email=document.getElementById("sellerEmail").value.trim();
+  const password=document.getElementById("sellerPassword").value;
+  if(!email || !password){
+    loginStatus.textContent="Enter email and password to create an account.";
+    return;
+  }
+  if(password.length<6){
+    loginStatus.textContent="Password must be at least 6 characters.";
+    return;
+  }
   try{
-    loginStatus.textContent="Verifying...";
-    await confirmationResult.confirm(otp);
+    loginStatus.textContent="Creating seller account...";
+    await createUserWithEmailAndPassword(auth,email,password);
+    buyerMode=false;
   }catch(error){
     console.error(error);
-    loginStatus.textContent="OTP verification failed: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
+    loginStatus.textContent="Account error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
+  }
+};
+
+window.sellerResetPassword=async function(){
+  const email=document.getElementById("sellerEmail").value.trim();
+  if(!email){
+    loginStatus.textContent="Enter your seller email first.";
+    return;
+  }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    loginStatus.textContent="Password reset email sent. Check your email.";
+  }catch(error){
+    console.error(error);
+    loginStatus.textContent="Reset error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
   }
 };
 
 onAuthStateChanged(auth,user=>{
   currentUser=user||null;
-  if(user){showApp();}
-  else{showGate();}
+  if(user){
+    buyerMode=false;
+    showApp();
+  }else if(buyerMode){
+    showApp();
+  }else{
+    showGate();
+  }
 });
 
 function normalizeVehicle(docSnap){
@@ -347,12 +391,19 @@ document.getElementById("searchInput").addEventListener("keydown",e=>{
 });
 
 window.show=function(id){
+  if(id==="seller" && !currentUser){
+    showGate();
+    document.getElementById("sellerLoginArea").style.display="block";
+    loginStatus.textContent="Seller login is required to sell a vehicle.";
+    document.getElementById("sellerEmail").focus();
+    return;
+  }
   ["home","buyer","seller"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
   if(id==="seller"){
     const u=currentUser;
-    if(u && !document.getElementById("phone").value) document.getElementById("phone").value=u.phoneNumber||"";
+    if(u && !document.getElementById("phone").value) document.getElementById("phone").value="";
   }
 };
 
@@ -419,7 +470,7 @@ window.submitVehicle=async function(){
     return;
   }
   if(!currentUser){
-    document.getElementById("status").textContent="Please login with mobile OTP first.";
+    document.getElementById("status").textContent="Please login as a seller with email and password first.";
     return;
   }
 
