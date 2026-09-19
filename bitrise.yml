@@ -1,0 +1,55 @@
+format_version: '26'
+
+workflows:
+  build_apk:
+    title: Motorbike & Car Zone Android APK
+
+    steps:
+    - script:
+        title: Create Android project
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -ex
+
+            rm -rf www android package.json capacitor.config.json
+
+            mkdir -p www
+            cp index.html www/index.html
+
+            cat > package.json <<'EOF'
+            {
+              "name": "motorbike-car-zone",
+              "private": true,
+              "version": "1.0.0",
+              "dependencies": {
+                "@capacitor/android": "^8.0.0",
+                "@capacitor/cli": "^8.0.0",
+                "@capacitor/core": "^8.0.0"
+              }
+            }
+            EOF
+
+            cat > capacitor.config.json <<'EOF'
+            {
+              "appId": "com.finnishta.motorbikecarzone",
+              "appName": "Motorbike & Car Zone",
+              "webDir": "www"
+            }
+            EOF
+
+            npm install
+            npx cap add android
+            npx cap sync android
+
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleDebug --no-daemon
+
+            mkdir -p "$BITRISE_DEPLOY_DIR"
+            cp app/build/outputs/apk/debug/app-debug.apk \
+              "$BITRISE_DEPLOY_DIR/Motorbike-Car-Zone.apk"
+
+    - deploy-to-bitrise-io:
+        inputs:
+        - notify_user_groups: none
