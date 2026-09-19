@@ -218,13 +218,6 @@ let currentUser = null;
 let currentVehicleList = [];
 let buyerMode = false;
 
-const demoVehicles = [
-  {type:"car",name:"Hyundai i20",year:2019,km:"52,000 KM",loc:"Bangalore",price:"₹6,50,000",colour:"White",demo:true,status:"approved"},
-  {type:"bike",name:"Royal Enfield Classic 350",year:2021,km:"18,000 KM",loc:"Bangalore",price:"₹1,80,000",colour:"Black",demo:true,status:"approved"},
-  {type:"car",name:"Honda City",year:2018,km:"45,000 KM",loc:"Bangalore",price:"₹8,80,000",colour:"Blue",demo:true,status:"approved"},
-  {type:"bike",name:"Yamaha R15 V3",year:2020,km:"20,000 KM",loc:"Bangalore",price:"₹1,75,000",colour:"Black",demo:true,status:"approved"}
-];
-
 const gate = document.getElementById("firstLoginGate");
 const appContent = document.getElementById("appContent");
 const appNav = document.getElementById("appNav");
@@ -433,7 +426,7 @@ async function loadApprovedVehicles(){
   }catch(error){
     console.error("Approved vehicle load error:",error);
   }
-  currentVehicleList=demoVehicles.concat(approved);
+  currentVehicleList=approved;
   render(currentVehicleList);
 }
 
@@ -442,7 +435,7 @@ window.render=function(list=currentVehicleList){
   const box=document.getElementById("vehicles");
   if(!list.length){box.innerHTML='<div class="card muted">No vehicles found.</div>';return;}
   box.innerHTML=list.map((v,i)=>{
-    const badge=v.demo?'<span class="badge approved">APPROVED DEMO</span>':'<span class="badge approved">APPROVED</span>';
+    const badge='<span class="badge approved">APPROVED</span>';
     const photos=Array.isArray(v.photoUrls)?v.photoUrls.filter(Boolean):[];
     const photoHtml=photos.length?`
       <div class="mainPhotoGallery">
@@ -466,13 +459,13 @@ window.render=function(list=currentVehicleList){
 };
 
 window.filterVehicles=function(t){
-  if(t==="all") render(demoVehicles.concat(currentVehicleList.filter(v=>!v.demo)));
-  else render(demoVehicles.concat(currentVehicleList.filter(v=>!v.demo)).filter(v=>v.type===t));
+  if(t==="all") render(currentVehicleList);
+  else render(currentVehicleList.filter(v=>v.type===t));
 };
 
 window.runSearch=function(){
   const q=(document.getElementById("searchInput").value||"").trim().toLowerCase();
-  const all=demoVehicles.concat(currentVehicleList.filter(v=>!v.demo));
+  const all=currentVehicleList;
   if(!q){render(all);return;}
   render(all.filter(v=>[
     v.type,v.name,v.year,v.km,v.loc,v.price,v.colour
