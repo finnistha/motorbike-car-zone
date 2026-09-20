@@ -32,6 +32,28 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
 
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("www/index.html")
+          s = p.read_text()
+
+          refresh_code = r'''
+          <script>
+          document.addEventListener("visibilitychange", function () {
+            if (!document.hidden) {
+              setTimeout(function () {
+                location.reload();
+              }, 500);
+            }
+          });
+          </script>
+          '''
+
+          s = s.replace("</body>", refresh_code + "\n</body>")
+          p.write_text(s)
+          PY
+
           cat > package.json <<'EOF'
           {
             "name": "motorbike-car-zone",
