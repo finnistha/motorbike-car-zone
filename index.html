@@ -57,22 +57,12 @@ h2{font-size:19px;margin:22px 0 12px}
   <div id="firstLoginCard">
     <div style="text-align:center;font-size:48px">🚗 🏍️</div>
     <h1 style="text-align:center;margin:8px 0;font-size:24px">MOTORBIKE &amp; CAR ZONE</h1>
-    <p style="text-align:center;color:#666;margin-bottom:22px">Buy without login • Seller login with email</p>
+    <p style="text-align:center;color:#666;margin-bottom:22px">Buy without login • Seller can sell without login</p>
 
     <button class="primary" onclick="continueAsBuyer()">🚘 Continue as Buyer</button>
-    <button class="light" onclick="openSellerLogin()">🏪 Seller Login</button>
+    <button class="light" onclick="continueAsSeller()">🏪 Continue as Seller</button>
 
-    <div id="sellerLoginArea" style="display:none;margin-top:18px">
-      <label><b>Seller Email</b></label>
-      <input id="sellerEmail" type="email" placeholder="seller@example.com" autocomplete="email">
-      <label style="display:block;margin-top:12px"><b>Password</b></label>
-      <input id="sellerPassword" type="password" placeholder="Password" autocomplete="current-password">
-      <button class="primary" onclick="sellerLogin()">Login as Seller</button>
-      <button class="light" onclick="sellerSignup()">Create Seller Account</button>
-      <button class="light" onclick="sellerResetPassword()">Forgot Password</button>
-    </div>
-
-    <div id="firstLoginStatus">Buyers can enter without login. Sellers must login with email and password.</div>
+    <div id="firstLoginStatus">Buyer and Seller can continue without login.</div>
   </div>
 </div>
 
@@ -106,7 +96,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <header>
   <div class="logo">🚗 MOTORBIKE &amp; CAR ZONE 🏍️</div>
-  <div class="tag">Buy without login • Sell with email login</div>
+  <div class="tag">Buy &amp; Sell without login</div>
   <div class="location">📍 Bangalore</div>
   <div class="search">
     <input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model">
@@ -137,7 +127,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <section id="seller" class="hidden">
   <h2>Sell Your Vehicle</h2>
-  <div class="card"><p class="muted">Seller login is required. Your email is used for seller account login; buyer customers will not see your seller contact details.</p>
+  <div class="card"><p class="muted">No seller login required. Enter your vehicle details and upload the required documents for Admin approval.</p>
     <div class="form">
       <select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>
       <input id="name" placeholder="Seller Name">
@@ -183,14 +173,13 @@ h2{font-size:19px;margin:22px 0 12px}
   <button onclick="show('home')">🏠<br>Home</button>
   <button onclick="show('buyer')">🔍<br>Buy</button>
   <button onclick="show('seller')">➕<br>Sell</button>
-  <button id="sellerLogoutBtn" onclick="sellerLogout()" style="display:none">🚪<br>Logout</button>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  sendPasswordResetEmail, signOut, onAuthStateChanged
+  getAuth, signInAnonymously, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs
@@ -235,164 +224,27 @@ function showGate(){
   gate.style.display="flex"; appContent.style.display="none"; appNav.style.display="none";
 }
 
-let pendingBuyerContact = null;
-
-window.openBuyerLogin=function(model,price){
-  pendingBuyerContact={model,price};
-  document.getElementById("buyerLoginStatus").textContent="";
-  document.getElementById("buyerLoginModal").style.display="flex";
-};
-
-window.closeBuyerLogin=function(){
-  document.getElementById("buyerLoginModal").style.display="none";
-};
-
-window.buyerLogin=async function(){
-  const email=document.getElementById("buyerEmail").value.trim();
-  const password=document.getElementById("buyerPassword").value;
-  if(!email || !password){
-    document.getElementById("buyerLoginStatus").textContent="Enter email and password.";
-    return;
-  }
-  try{
-    document.getElementById("buyerLoginStatus").textContent="Signing in...";
-    const result=await signInWithEmailAndPassword(auth,email,password);
-    closeBuyerLogin();
-    if(pendingBuyerContact){
-      contact(pendingBuyerContact.model,pendingBuyerContact.price);
-      pendingBuyerContact=null;
-    }
-    // Keep buyer browsing flow; buyer login is only for contact.
-    buyerMode=false;
-    currentUser=result.user;
-  }catch(error){
-    console.error(error);
-    document.getElementById("buyerLoginStatus").textContent="Login error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
-};
-
-window.buyerSignup=async function(){
-  const email=document.getElementById("buyerEmail").value.trim();
-  const password=document.getElementById("buyerPassword").value;
-  if(!email || !password){
-    document.getElementById("buyerLoginStatus").textContent="Enter email and password.";
-    return;
-  }
-  if(password.length<6){
-    document.getElementById("buyerLoginStatus").textContent="Password must be at least 6 characters.";
-    return;
-  }
-  try{
-    document.getElementById("buyerLoginStatus").textContent="Creating buyer account...";
-    await createUserWithEmailAndPassword(auth,email,password);
-    closeBuyerLogin();
-    if(pendingBuyerContact){
-      contact(pendingBuyerContact.model,pendingBuyerContact.price);
-      pendingBuyerContact=null;
-    }
-  }catch(error){
-    console.error(error);
-    document.getElementById("buyerLoginStatus").textContent="Account error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
-};
-
-window.buyerResetPassword=async function(){
-  const email=document.getElementById("buyerEmail").value.trim();
-  if(!email){
-    document.getElementById("buyerLoginStatus").textContent="Enter your email first.";
-    return;
-  }
-  try{
-    await sendPasswordResetEmail(auth,email);
-    document.getElementById("buyerLoginStatus").textContent="Password reset email sent. Check your email.";
-  }catch(error){
-    console.error(error);
-    document.getElementById("buyerLoginStatus").textContent="Reset error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
-};
-
-window.sellerLogout=async function(){
-  await signOut(auth);
-  buyerMode=false;
-  showGate();
-  document.getElementById("sellerLoginArea").style.display="none";
-  loginStatus.textContent="Buyer can continue without login, or seller can login with email.";
-};
-
 window.continueAsBuyer=function(){
   buyerMode=true;
-  currentUser=null;
   showApp();
 };
 
-window.openSellerLogin=function(){
-  document.getElementById("sellerLoginArea").style.display="block";
-  loginStatus.textContent="Seller login: enter your email and password.";
-  document.getElementById("sellerEmail").focus();
-};
-
-window.sellerLogin=async function(){
-  const email=document.getElementById("sellerEmail").value.trim();
-  const password=document.getElementById("sellerPassword").value;
-  if(!email || !password){
-    loginStatus.textContent="Enter seller email and password.";
-    return;
-  }
-  try{
-    loginStatus.textContent="Signing in...";
-    await signInWithEmailAndPassword(auth,email,password);
-    buyerMode=false;
-  }catch(error){
-    console.error(error);
-    loginStatus.textContent="Login error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
-};
-
-window.sellerSignup=async function(){
-  const email=document.getElementById("sellerEmail").value.trim();
-  const password=document.getElementById("sellerPassword").value;
-  if(!email || !password){
-    loginStatus.textContent="Enter email and password to create an account.";
-    return;
-  }
-  if(password.length<6){
-    loginStatus.textContent="Password must be at least 6 characters.";
-    return;
-  }
-  try{
-    loginStatus.textContent="Creating seller account...";
-    await createUserWithEmailAndPassword(auth,email,password);
-    buyerMode=false;
-  }catch(error){
-    console.error(error);
-    loginStatus.textContent="Account error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
-};
-
-window.sellerResetPassword=async function(){
-  const email=document.getElementById("sellerEmail").value.trim();
-  if(!email){
-    loginStatus.textContent="Enter your seller email first.";
-    return;
-  }
-  try{
-    await sendPasswordResetEmail(auth,email);
-    loginStatus.textContent="Password reset email sent. Check your email.";
-  }catch(error){
-    console.error(error);
-    loginStatus.textContent="Reset error: "+(error.code||"unknown")+(error.message?" — "+error.message:"");
-  }
+window.continueAsSeller=function(){
+  buyerMode=false;
+  showApp();
+  setTimeout(()=>show("seller"),0);
 };
 
 onAuthStateChanged(auth,user=>{
   currentUser=user||null;
   if(user){
-    buyerMode=false;
-    showApp();
-  }else if(buyerMode){
     showApp();
   }else{
-    showGate();
+    signInAnonymously(auth).catch(error=>{
+      console.error("Anonymous sign-in error:",error);
+      loginStatus.textContent="Connection error: "+(error.code||"unknown");
+      showGate();
+    });
   }
 });
 
@@ -477,13 +329,6 @@ document.getElementById("searchInput").addEventListener("keydown",e=>{
 });
 
 window.show=function(id){
-  if(id==="seller" && !currentUser){
-    showGate();
-    document.getElementById("sellerLoginArea").style.display="block";
-    loginStatus.textContent="Seller login is required to sell a vehicle.";
-    document.getElementById("sellerEmail").focus();
-    return;
-  }
   ["home","buyer","seller"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
@@ -555,11 +400,6 @@ window.submitVehicle=async function(){
     document.getElementById("status").textContent="Please fill Name, Mobile, Model, Year, KM, Amount and Location.";
     return;
   }
-  if(!currentUser){
-    document.getElementById("status").textContent="Please login as a seller with email and password first.";
-    return;
-  }
-
   const btn=document.getElementById("submitVehicleBtn");
   btn.disabled=true;
   document.getElementById("status").textContent="";
