@@ -25,7 +25,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Create Android project
+      - name: Create APK-only app
         run: |
           rm -rf www android package.json capacitor.config.json
 
@@ -34,24 +34,75 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           p = Path("www/index.html")
           s = p.read_text()
 
-          refresh_code = r'''
-          <script>
-          document.addEventListener("visibilitychange", function () {
-            if (!document.hidden) {
-              setTimeout(function () {
-                location.reload();
-              }, 500);
-            }
-          });
-          </script>
-          '''
+          # APK ONLY:
+          # Change Firestore one-time loading to real-time listening.
+          s = s.replace(
+              "query, where, getDocs",
+              "query, where, onSnapshot"
+          )
 
-          s = s.replace("</body>", refresh_code + "\n</body>")
-          p.write_text(s)
+          # In case the import has a different spacing/order.
+          s = s.replace(
+              "query,where,getDocs",
+              "query,where,onSnapshot"
+          )
+
+          # Replace the approved-vehicle loader in the APK copy only.
+          pattern = r'async function loadApprovedVehicles\(\)\s*\{.*?\n\}'
+
+          replacement = r'''let approvedVehiclesUnsubscribe = null;
+
+          function loadApprovedVehicles(){
+            if(approvedVehiclesUnsubscribe){
+              approvedVehiclesUnsubscribe();
+              approvedVehiclesUnsubscribe = null;
+            }
+
+            const q = query(
+              collection(db,"vehicles"),
+              where("status","==","approved")
+            );
+
+            approvedVehiclesUnsubscribe = onSnapshot(
+              q,
+              (snap)=>{
+                const approved = [];
+
+                snap.forEach(s=>{
+                  approved.push(normalizeVehicle(s));
+                });
+
+                currentVehicleList = approved;
+                render(currentVehicleList);
+              },
+              (error)=>{
+                console.error("Approved vehicle realtime error:",error);
+              }
+            );
+          }'''
+
+          new_s, count = re.subn(
+              pattern,
+              replacement,
+              s,
+              count=1,
+              flags=re.S
+          )
+
+          if count != 1:
+              raise SystemExit(
+                  "Could not find loadApprovedVehicles() in APK source. Build stopped safely."
+              )
+
+          p.write_text(new_s)
+
+          print("APK-only realtime Firestore update enabled.")
+          print("Website source was NOT modified.")
           PY
 
           cat > package.json <<'EOF'
