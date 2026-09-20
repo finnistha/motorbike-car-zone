@@ -32,7 +32,7 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
 
-          # APK-only auto refresh when app comes back to screen
+          # APK ONLY: refresh app when it comes back to screen
           python3 - <<'PY'
           from pathlib import Path
 
@@ -51,20 +51,20 @@ jobs:
           </script>
           '''
 
-          s = s.replace("</body>", refresh_code + "\n</body>")
+          if "</body>" in s:
+              s = s.replace("</body>", refresh_code + "\n</body>")
+          else:
+              s += refresh_code
+
           p.write_text(s)
           PY
 
-          # Prepare app icon
+          # App icon files
           mkdir -p assets
 
-          if [ -f "motorbike_car_zone_app_icon.png" ]; then
-            cp motorbike_car_zone_app_icon.png assets/icon-only.png
-            cp motorbike_car_zone_app_icon.png assets/icon-foreground.png
-          else
-            echo "ERROR: App icon file not found"
-            exit 1
-          fi
+          cp motorbike_car_zone_app_icon.png assets/icon.png
+          cp motorbike_car_zone_app_icon.png assets/icon-foreground.png
+          cp motorbike_car_zone_app_icon.png assets/icon-background.png
 
           cat > package.json <<'EOF'
           {
