@@ -25,85 +25,46 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Create APK-only app
+      - name: Create Android project
         run: |
           rm -rf www android package.json capacitor.config.json
 
           mkdir -p www
           cp index.html www/index.html
 
+          # APK-only auto refresh when app comes back to screen
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           p = Path("www/index.html")
           s = p.read_text()
 
-          # APK ONLY:
-          # Change Firestore one-time loading to real-time listening.
-          s = s.replace(
-              "query, where, getDocs",
-              "query, where, onSnapshot"
-          )
-
-          # In case the import has a different spacing/order.
-          s = s.replace(
-              "query,where,getDocs",
-              "query,where,onSnapshot"
-          )
-
-          # Replace the approved-vehicle loader in the APK copy only.
-          pattern = r'async function loadApprovedVehicles\(\)\s*\{.*?\n\}'
-
-          replacement = r'''let approvedVehiclesUnsubscribe = null;
-
-          function loadApprovedVehicles(){
-            if(approvedVehiclesUnsubscribe){
-              approvedVehiclesUnsubscribe();
-              approvedVehiclesUnsubscribe = null;
+          refresh_code = r'''
+          <script>
+          document.addEventListener("visibilitychange", function () {
+            if (!document.hidden) {
+              setTimeout(function () {
+                location.reload();
+              }, 500);
             }
+          });
+          </script>
+          '''
 
-            const q = query(
-              collection(db,"vehicles"),
-              where("status","==","approved")
-            );
-
-            approvedVehiclesUnsubscribe = onSnapshot(
-              q,
-              (snap)=>{
-                const approved = [];
-
-                snap.forEach(s=>{
-                  approved.push(normalizeVehicle(s));
-                });
-
-                currentVehicleList = approved;
-                render(currentVehicleList);
-              },
-              (error)=>{
-                console.error("Approved vehicle realtime error:",error);
-              }
-            );
-          }'''
-
-          new_s, count = re.subn(
-              pattern,
-              replacement,
-              s,
-              count=1,
-              flags=re.S
-          )
-
-          if count != 1:
-              raise SystemExit(
-                  "Could not find loadApprovedVehicles() in APK source. Build stopped safely."
-              )
-
-          p.write_text(new_s)
-
-          print("APK-only realtime Firestore update enabled.")
-          print("Website source was NOT modified.")
+          s = s.replace("</body>", refresh_code + "\n</body>")
+          p.write_text(s)
           PY
+
+          # Prepare app icon
+          mkdir -p assets
+
+          if [ -f "motorbike_car_zone_app_icon.png" ]; then
+            cp motorbike_car_zone_app_icon.png assets/icon-only.png
+            cp motorbike_car_zone_app_icon.png assets/icon-foreground.png
+          else
+            echo "ERROR: App icon file not found"
+            exit 1
+          fi
 
           cat > package.json <<'EOF'
           {
@@ -114,6 +75,9 @@ jobs:
               "@capacitor/android": "^8.0.0",
               "@capacitor/cli": "^8.0.0",
               "@capacitor/core": "^8.0.0"
+            },
+            "devDependencies": {
+              "@capacitor/assets": "^3.0.5"
             }
           }
           EOF
@@ -127,7 +91,11 @@ jobs:
           EOF
 
           npm install
+
           npx cap add android
+
+          npx capacitor-assets generate --android
+
           npx cap sync android
 
       - name: Build APK
