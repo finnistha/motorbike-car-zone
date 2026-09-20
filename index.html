@@ -242,7 +242,7 @@ onAuthStateChanged(auth,user=>{
   }else{
     signInAnonymously(auth).catch(error=>{
       console.error("Anonymous sign-in error:",error);
-      loginStatus.textContent="Connection error: "+(error.code||"unknown");
+      loginStatus.textContent="Firebase connection error: "+(error.code||"unknown")+". Anonymous Authentication must be enabled in Firebase.";
       showGate();
     });
   }
@@ -406,6 +406,19 @@ window.submitVehicle=async function(){
   document.getElementById("sellerProgress").textContent="Starting upload...";
 
   try{
+    // Seller has no visible login. Make sure Firebase Anonymous Auth is ready
+    // before writing the listing, so currentUser can never be null here.
+    if(!currentUser){
+      document.getElementById("sellerProgress").textContent="Connecting securely...";
+      const anonResult=await signInAnonymously(auth);
+      currentUser=anonResult.user;
+    }
+
+    const sellerUser=currentUser;
+    if(!sellerUser || !sellerUser.uid){
+      throw new Error("Seller connection is not ready. Please try again.");
+    }
+
     const photoFiles=Array.from(document.getElementById("photos").files||[]);
     const rcFile=document.getElementById("rc").files[0]||null;
     const insuranceFile=document.getElementById("insurance").files[0]||null;
@@ -424,7 +437,7 @@ window.submitVehicle=async function(){
       brand:document.getElementById("model").value.trim(),
       sellerName:document.getElementById("name").value.trim(),
       sellerPhone:document.getElementById("phone").value.trim(),
-      sellerId:currentUser.uid,
+      sellerId:sellerUser.uid,
       year:document.getElementById("year").value.trim(),
       km:document.getElementById("km").value.trim(),
       colour:document.getElementById("colour").value.trim(),
