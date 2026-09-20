@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#5b3cc4">
 <title>MOTORBIKE & CAR ZONE</title>
+<!-- Realtime approved vehicles + Anonymous Auth -->
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f5f6fb;color:#202124}
@@ -53,35 +54,8 @@ h2{font-size:19px;margin:22px 0 12px}
 </head>
 <body>
 
-<div id="firstLoginGate">
-  <div id="firstLoginCard">
-    <div style="text-align:center;font-size:48px">🚗 🏍️</div>
-    <h1 style="text-align:center;margin:8px 0;font-size:24px">MOTORBIKE &amp; CAR ZONE</h1>
-    <p style="text-align:center;color:#666;margin-bottom:22px">Buy without login • Seller can sell without login</p>
+<div id="firstLoginGate" style="display:none"></div>
 
-    <button class="primary" onclick="continueAsBuyer()">🚘 Continue as Buyer</button>
-    <button class="light" onclick="continueAsSeller()">🏪 Continue as Seller</button>
-
-    <div id="firstLoginStatus">Buyer and Seller can continue without login.</div>
-  </div>
-</div>
-
-
-<div id="buyerLoginModal" style="position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;padding:0">
-  <div style="width:100%;max-width:700px;background:#fff;border-radius:24px 24px 0 0;padding:22px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="margin:0">Buyer Login</h2>
-      <button class="light" onclick="closeBuyerLogin()">✕ Close</button>
-    </div>
-    <p class="muted">Buyer login is not required. You can browse, view details and contact Motorbike &amp; Car Zone directly.</p>
-    <input id="buyerEmail" type="email" placeholder="Email" autocomplete="email" style="width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px;margin-top:8px">
-    <input id="buyerPassword" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px;margin-top:10px">
-    <button class="primary" style="width:100%;margin-top:10px" onclick="buyerLogin()">Login</button>
-    <button class="light" style="width:100%;margin-top:10px" onclick="buyerSignup()">Create Buyer Account</button>
-    <button class="light" style="width:100%;margin-top:10px" onclick="buyerResetPassword()">Forgot Password</button>
-    <div id="buyerLoginStatus" class="muted" style="margin-top:10px;min-height:20px"></div>
-  </div>
-</div>
 
 <div id="detailsModal" onclick="if(event.target===this)closeDetails()">
   <div id="detailsCard">
@@ -96,7 +70,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <header>
   <div class="logo">🚗 MOTORBIKE &amp; CAR ZONE 🏍️</div>
-  <div class="tag">Buy &amp; Sell without login</div>
+  <div class="tag">Buy without login • Sell with email login</div>
   <div class="location">📍 Bangalore</div>
   <div class="search">
     <input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model">
@@ -127,7 +101,7 @@ h2{font-size:19px;margin:22px 0 12px}
 
 <section id="seller" class="hidden">
   <h2>Sell Your Vehicle</h2>
-  <div class="card"><p class="muted">No seller login required. Enter your vehicle details and upload the required documents for Admin approval.</p>
+  <div class="card"><p class="muted">No login required. Submit your vehicle for Admin approval.</p>
     <div class="form">
       <select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>
       <input id="name" placeholder="Seller Name">
@@ -173,7 +147,6 @@ h2{font-size:19px;margin:22px 0 12px}
   <button onclick="show('home')">🏠<br>Home</button>
   <button onclick="show('buyer')">🔍<br>Buy</button>
   <button onclick="show('seller')">➕<br>Sell</button>
-
 </div>
 
 <script type="module">
@@ -182,7 +155,7 @@ import {
   getAuth, signInAnonymously, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs
+  getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -205,48 +178,39 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let currentVehicleList = [];
-let buyerMode = false;
+let approvedVehiclesUnsubscribe = null;
 
 const gate = document.getElementById("firstLoginGate");
 const appContent = document.getElementById("appContent");
 const appNav = document.getElementById("appNav");
-const loginStatus = document.getElementById("firstLoginStatus");
 
 function escapeHtml(value){
   return String(value ?? "").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 }
 function showApp(){
-  gate.style.display="none"; appContent.style.display="block"; appNav.style.display="flex";
-  document.getElementById("sellerLogoutBtn").style.display=currentUser ? "block" : "none";
+  gate.style.display="none";
+  appContent.style.display="block";
+  appNav.style.display="flex";
   loadApprovedVehicles();
 }
 function showGate(){
-  gate.style.display="flex"; appContent.style.display="none"; appNav.style.display="none";
+  gate.style.display="none";
+  appContent.style.display="block";
+  appNav.style.display="flex";
 }
-
-window.continueAsBuyer=function(){
-  buyerMode=true;
-  showApp();
-};
-
-window.continueAsSeller=function(){
-  buyerMode=false;
-  showApp();
-  setTimeout(()=>show("seller"),0);
-};
 
 onAuthStateChanged(auth,user=>{
   currentUser=user||null;
-  if(user){
-    showApp();
-  }else{
-    signInAnonymously(auth).catch(error=>{
-      console.error("Anonymous sign-in error:",error);
-      loginStatus.textContent="Firebase connection error: "+(error.code||"unknown")+". Anonymous Authentication must be enabled in Firebase.";
-      showGate();
-    });
-  }
 });
+
+showApp();
+if(!auth.currentUser){
+  signInAnonymously(auth).catch(error=>{
+    console.error("Anonymous sign-in error:",error);
+    const status=document.getElementById("status");
+    if(status) status.textContent="Connection error: "+(error.code||"unknown");
+  });
+}
 
 function normalizeVehicle(docSnap){
   const d=docSnap.data();
@@ -269,17 +233,26 @@ function normalizeVehicle(docSnap){
   };
 }
 
-async function loadApprovedVehicles(){
-  let approved=[];
-  try{
-    const q=query(collection(db,"vehicles"),where("status","==","approved"));
-    const snap=await getDocs(q);
-    snap.forEach(s=>approved.push(normalizeVehicle(s)));
-  }catch(error){
-    console.error("Approved vehicle load error:",error);
+function loadApprovedVehicles(){
+  if(approvedVehiclesUnsubscribe){
+    approvedVehiclesUnsubscribe();
+    approvedVehiclesUnsubscribe=null;
   }
-  currentVehicleList=approved;
-  render(currentVehicleList);
+
+  const q=query(collection(db,"vehicles"),where("status","==","approved"));
+  approvedVehiclesUnsubscribe=onSnapshot(q,
+    snap=>{
+      const approved=[];
+      snap.forEach(docSnap=>approved.push(normalizeVehicle(docSnap)));
+      currentVehicleList=approved;
+      render(currentVehicleList);
+    },
+    error=>{
+      console.error("Approved vehicle realtime error:",error);
+      const box=document.getElementById("vehicles");
+      if(box) box.innerHTML='<div class="card muted">Unable to load approved vehicles. Please refresh and try again.</div>';
+    }
+  );
 }
 
 window.render=function(list=currentVehicleList){
@@ -332,10 +305,6 @@ window.show=function(id){
   ["home","buyer","seller"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
   window.scrollTo(0,0);
-  if(id==="seller"){
-    const u=currentUser;
-    if(u && !document.getElementById("phone").value) document.getElementById("phone").value="";
-  }
 };
 
 function contact(model,price){
@@ -400,25 +369,24 @@ window.submitVehicle=async function(){
     document.getElementById("status").textContent="Please fill Name, Mobile, Model, Year, KM, Amount and Location.";
     return;
   }
+  if(!currentUser){
+    document.getElementById("status").textContent="Connecting securely. Please wait a moment and tap Submit again.";
+    try{
+      const result=await signInAnonymously(auth);
+      currentUser=result.user;
+    }catch(e){
+      console.error(e);
+      document.getElementById("status").textContent="Connection error: "+(e.code||"unknown");
+      return;
+    }
+  }
+
   const btn=document.getElementById("submitVehicleBtn");
   btn.disabled=true;
   document.getElementById("status").textContent="";
   document.getElementById("sellerProgress").textContent="Starting upload...";
 
   try{
-    // Seller has no visible login. Make sure Firebase Anonymous Auth is ready
-    // before writing the listing, so currentUser can never be null here.
-    if(!currentUser){
-      document.getElementById("sellerProgress").textContent="Connecting securely...";
-      const anonResult=await signInAnonymously(auth);
-      currentUser=anonResult.user;
-    }
-
-    const sellerUser=currentUser;
-    if(!sellerUser || !sellerUser.uid){
-      throw new Error("Seller connection is not ready. Please try again.");
-    }
-
     const photoFiles=Array.from(document.getElementById("photos").files||[]);
     const rcFile=document.getElementById("rc").files[0]||null;
     const insuranceFile=document.getElementById("insurance").files[0]||null;
@@ -437,7 +405,7 @@ window.submitVehicle=async function(){
       brand:document.getElementById("model").value.trim(),
       sellerName:document.getElementById("name").value.trim(),
       sellerPhone:document.getElementById("phone").value.trim(),
-      sellerId:sellerUser.uid,
+      sellerId:currentUser.uid,
       year:document.getElementById("year").value.trim(),
       km:document.getElementById("km").value.trim(),
       colour:document.getElementById("colour").value.trim(),
