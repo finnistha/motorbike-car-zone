@@ -1,176 +1,498 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#5b3cc4">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#3025c8">
 <title>MOTORBIKE & CAR ZONE</title>
-<!-- Realtime approved vehicles + Anonymous Auth -->
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f6fb;color:#202124}
-header{background:linear-gradient(135deg,#5b3cc4,#2878e8);color:#fff;padding:22px 18px 26px;border-radius:0 0 24px 24px}
-.logo{font-size:21px;font-weight:800}.tag{opacity:.9;margin-top:5px;font-size:13px}.location{margin-top:15px;font-size:14px}
-.search{margin-top:13px;background:#fff;border-radius:13px;padding:7px;display:flex;gap:8px;align-items:center}
-.search input{flex:1;border:0;outline:0;font-size:14px;background:transparent;padding:7px}
-main{padding:16px;max-width:700px;margin:auto}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#fff;border-radius:17px;padding:17px;box-shadow:0 3px 14px #00000010}
-.action{font-weight:800;font-size:17px}.muted{font-size:13px;color:#777;margin-top:5px}
-button{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
-.primary{background:#5b3cc4;color:white}.light{background:#eef0ff;color:#4b36a5}
-.danger{background:#ffe9e9;color:#b42318}
-h2{font-size:19px;margin:22px 0 12px}
-.chips{display:flex;gap:8px;overflow:auto}.chip{white-space:nowrap;background:#fff;border:1px solid #ddd;border-radius:20px;padding:9px 13px}
-.vehicle{margin-top:12px}.price{font-size:19px;font-weight:800;margin-top:8px}.spec{font-size:13px;color:#666;margin-top:5px}
-.hidden{display:none}.form{display:grid;gap:10px}
-.form input,.form select,.form textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;font-size:14px}
-.filebox{background:#fafaff;border:1px dashed #bbb;border-radius:12px;padding:12px}
-.filebox b{display:block;margin-bottom:5px}.filebox small{color:#777}
-.nav{position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 4px;margin-top:25px}
-.nav button{background:none;color:#555;padding:8px}.badge{display:inline-block;background:#fff1cf;color:#8a5b00;padding:5px 9px;border-radius:12px;font-size:12px;font-weight:700}
-.badge.approved{background:#e8f7ee;color:#137333}.badge.pending{background:#fff1cf;color:#8a5b00}
-#firstLoginGate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#5b3cc4,#2878e8)}
-#firstLoginCard{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:26px;box-shadow:0 15px 50px rgba(0,0,0,.25)}
-#firstLoginCard input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;margin-top:8px}
-#firstLoginCard button{width:100%;margin-top:10px}
-#firstLoginStatus{font-size:13px;color:#666;margin-top:10px;min-height:20px}
-#gateRecaptcha{margin-top:12px;min-height:78px}
-#detailsModal{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;padding:0}
-#detailsCard{width:100%;max-width:700px;max-height:88vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:22px}
-.detailRow{padding:11px 0;border-bottom:1px solid #eee;font-size:14px}.detailLabel{font-size:12px;color:#777}.detailValue{font-weight:700;margin-top:3px}
-.mediaGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.mediaGrid img{width:100%;height:150px;object-fit:cover;border-radius:10px;border:1px solid #ddd}
-.linkList a{display:block;margin-top:8px;word-break:break-all}
-.progress{font-size:13px;color:#5b3cc4;min-height:18px}
-@media(min-width:700px){#detailsModal{align-items:center;padding:20px}#detailsCard{border-radius:24px}}
+html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden}
+body{font-family:Arial,sans-serif;background:#f5f6fb;color:#202124}
 
-.mainPhotoGallery{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:86px 86px;gap:6px;margin-top:13px;height:178px}
-.mainPhoto{grid-row:1/3;overflow:hidden;border-radius:12px;background:#eef0ff}
-.mainPhoto img,.smallPhoto img{width:100%;height:100%;object-fit:cover;display:block}
-.smallPhoto{overflow:hidden;border-radius:10px;background:#eef0ff}
-.morePhotos{display:flex;align-items:center;justify-content:center;border-radius:10px;background:#333;color:#fff;font-size:22px;font-weight:800}
-@media(max-width:420px){.mainPhotoGallery{height:150px;grid-template-rows:72px 72px}}
+header{
+ background:#3025c8;
+ color:white;
+ padding:22px 14px 28px;
+ border-radius:0 0 25px 25px;
+ width:100%;
+}
+
+.logo{
+ font-size:clamp(18px,5vw,25px);
+ font-weight:900;
+ line-height:1.3;
+}
+
+.search{
+ margin-top:22px;
+ background:white;
+ border-radius:15px;
+ padding:7px;
+ display:flex;
+ gap:7px;
+ width:100%;
+}
+
+.search input{
+ flex:1;
+ min-width:0;
+ border:0;
+ outline:0;
+ font-size:14px;
+ padding:12px 8px;
+}
+
+button{
+ border:0;
+ border-radius:12px;
+ padding:12px 15px;
+ font-weight:700;
+ cursor:pointer;
+}
+
+.primary{background:#3025c8;color:white}
+.light{background:#eef0ff;color:#4b36a5}
+
+.categoryScroll{
+ display:flex;
+ gap:15px;
+ overflow-x:auto;
+ margin-top:25px;
+ padding:5px 2px 12px;
+ scroll-behavior:smooth;
+ scrollbar-width:none;
+ overscroll-behavior-x:contain;
+}
+
+.categoryScroll::-webkit-scrollbar{display:none}
+
+.categoryItem{
+ flex:0 0 100px;
+ text-align:center;
+ color:white;
+ cursor:pointer;
+}
+
+.categoryIcon{
+ width:82px;
+ height:82px;
+ border-radius:50%;
+ background:rgba(255,255,255,.12);
+ border:2px solid rgba(255,255,255,.2);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ margin:auto;
+ color:white;
+}
+
+.categoryItem.active .categoryIcon{
+ background:white;
+ color:#3025c8;
+}
+
+.vehicle-drawing{
+ width:45px;
+ height:45px;
+ fill:none;
+ stroke:currentColor;
+ stroke-width:3;
+ stroke-linecap:round;
+ stroke-linejoin:round;
+}
+
+.categoryItem p{
+ font-size:12px;
+ font-weight:700;
+ line-height:1.3;
+ white-space:normal;
+}
+
+main{
+ width:100%;
+ max-width:700px;
+ padding:16px;
+ margin:auto;
+}
+
+h2{font-size:19px;margin:15px 0}
+
+.card{
+ background:white;
+ border-radius:17px;
+ padding:16px;
+ box-shadow:0 3px 14px #00000010;
+}
+
+.vehicle{margin-top:13px}
+.price{font-size:20px;font-weight:800;margin-top:8px}
+.spec{font-size:13px;color:#666;margin-top:5px}
+.muted{font-size:13px;color:#777;margin-top:5px}
+
+.badge{
+ display:inline-block;
+ background:#e8f7ee;
+ color:#137333;
+ padding:5px 9px;
+ border-radius:12px;
+ font-size:12px;
+ font-weight:700;
+}
+
+.mainPhotoGallery{
+ display:grid;
+ grid-template-columns:2fr 1fr 1fr;
+ grid-template-rows:80px 80px;
+ gap:6px;
+ margin-top:13px;
+ height:166px;
+}
+
+.mainPhoto{
+ grid-row:1/3;
+ overflow:hidden;
+ border-radius:12px;
+ background:#eef0ff;
+}
+
+.mainPhoto img,.smallPhoto img{
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ display:block;
+}
+
+.smallPhoto{
+ overflow:hidden;
+ border-radius:10px;
+}
+
+.morePhotos{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:#333;
+ color:white;
+ border-radius:10px;
+ font-size:22px;
+}
+
+#detailsModal{
+ position:fixed;
+ inset:0;
+ z-index:99998;
+ background:#0009;
+ display:none;
+ align-items:flex-end;
+ justify-content:center;
+}
+
+#detailsCard{
+ width:100%;
+ max-width:700px;
+ max-height:88vh;
+ overflow:auto;
+ background:white;
+ border-radius:24px 24px 0 0;
+ padding:20px;
+}
+
+.detailRow{
+ padding:11px 0;
+ border-bottom:1px solid #eee;
+ font-size:14px;
+}
+
+.detailLabel{font-size:12px;color:#777}
+.detailValue{font-weight:700;margin-top:3px;white-space:pre-wrap}
+
+.mediaGrid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:8px;
+ margin-top:10px;
+}
+
+.mediaGrid img{
+ width:100%;
+ height:150px;
+ object-fit:cover;
+ border-radius:10px;
+}
+
+.form{display:grid;gap:10px}
+
+.form input,.form select,.form textarea{
+ width:100%;
+ padding:13px;
+ border:1px solid #ddd;
+ border-radius:11px;
+ font-size:14px;
+}
+
+.filebox{
+ background:#fafaff;
+ border:1px dashed #bbb;
+ border-radius:12px;
+ padding:12px;
+}
+
+.progress{
+ font-size:13px;
+ color:#3025c8;
+ min-height:18px;
+}
+
+.whatsapp-float{
+ position:fixed;
+ right:17px;
+ bottom:22px;
+ z-index:99990;
+ width:58px;
+ height:58px;
+ border-radius:50%;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:#25D366;
+ color:white;
+ box-shadow:0 4px 14px #0004;
+ text-decoration:none;
+}
+
+.whatsapp-float svg{width:33px;height:33px;fill:white}
+
+@media(min-width:700px){
+ #detailsModal{align-items:center;padding:20px}
+ #detailsCard{border-radius:24px}
+}
+
+@media(max-width:420px){
+ .categoryItem{flex-basis:90px}
+ .categoryIcon{width:75px;height:75px}
+ .vehicle-drawing{width:40px;height:40px}
+ .mainPhotoGallery{
+  height:145px;
+  grid-template-rows:69px 69px;
+ }
+}
 </style>
 </head>
+
 <body>
 
-<div id="firstLoginGate" style="display:none"></div>
+<!-- FLOATING WHATSAPP BUTTON -->
+<a class="whatsapp-float"
+ href="https://wa.me/918722892965?text=Hello%20MOTORBIKE%20%26%20CAR%20ZONE"
+ target="_blank"
+ rel="noopener noreferrer"
+ aria-label="Contact us on WhatsApp">
 
+<svg viewBox="0 0 32 32">
+<path d="M16 3.2A12.6 12.6 0 0 0 5.2 22.3L3.5 28.8l6.7-1.7A12.6 12.6 0 1 0 16 3.2zm0 22.9c-2 0-3.9-.5-5.5-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.2 10.2 0 1 1 16 26.1zm5.6-7.6c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.3 8.3 0 0 1-2.5-1.5 9.2 9.2 0 0 1-1.7-2.1c-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.5 0-.6s-.7-1.7-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4c.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.7-.1 1.8-.7 2.1-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.3-.6-.5z"/>
+</svg>
+</a>
 
+<!-- VEHICLE DETAILS MODAL -->
 <div id="detailsModal" onclick="if(event.target===this)closeDetails()">
-  <div id="detailsCard">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <h2 id="detailsTitle" style="margin:0">Vehicle Details</h2>
-      <button class="light" onclick="closeDetails()">✕ Close</button>
-    </div>
-    <div id="detailsBody" style="margin-top:10px"></div>
-    <button id="detailsWhatsApp" class="primary" style="width:100%;margin-top:15px">Contact Motorbike &amp; Car Zone</button>
+ <div id="detailsCard">
+
+  <div style="display:flex;justify-content:space-between;align-items:center">
+   <h2 id="detailsTitle">Vehicle Details</h2>
+   <button class="light" onclick="closeDetails()">Close</button>
   </div>
+
+  <div id="detailsBody"></div>
+
+  <button id="detailsWhatsApp" class="primary"
+   style="width:100%;margin-top:15px">
+   Contact Motorbike & Car Zone
+  </button>
+
+ </div>
 </div>
 
+<!-- WEBSITE HEADER -->
 <header>
-  <div class="logo">🚗 MOTORBIKE &amp; CAR ZONE 🏍️</div>
-  <div class="tag">Buy without login • Sell with email login</div>
-  <div class="location">📍 Bangalore</div>
-  <div class="search">
-    <input id="searchInput" type="search" placeholder="🔍 Search cars, bikes, brand or model">
-    <button class="primary" style="padding:9px 13px" onclick="runSearch()">Search</button>
+
+ <div class="logo">MOTORBIKE &amp; CAR ZONE</div>
+
+ <div class="search">
+  <input id="searchInput"
+   type="search"
+   placeholder="Search Alto, Swift, Honda...">
+
+  <button class="primary" onclick="runSearch()">Search</button>
+ </div>
+
+ <!-- CATEGORY DRAWINGS -->
+ <div class="categoryScroll">
+
+  <div class="categoryItem active"
+   onclick="selectCategory('all',this)">
+   <div class="categoryIcon">
+    <svg class="vehicle-drawing" viewBox="0 0 64 64">
+     <rect x="10" y="10" width="18" height="18" rx="2"/>
+     <rect x="36" y="10" width="18" height="18" rx="2"/>
+     <rect x="10" y="36" width="18" height="18" rx="2"/>
+     <circle cx="45" cy="45" r="9"/>
+    </svg>
+   </div>
+   <p>All</p>
   </div>
+
+  <div class="categoryItem"
+   onclick="selectCategory('car',this)">
+   <div class="categoryIcon">
+    <svg class="vehicle-drawing" viewBox="0 0 64 64">
+     <path d="M10 37l4-13c1-3 3-5 7-5h22c4 0 6 2 7 5l4 13 3 4v11h-6v-6H13v6H7V41l3-4z"/>
+     <path d="M17 34h30l-3-10H20l-3 10z"/>
+     <circle cx="18" cy="42" r="4"/>
+     <circle cx="46" cy="42" r="4"/>
+    </svg>
+   </div>
+   <p>Buy Used Car</p>
+  </div>
+
+  <div class="categoryItem"
+   onclick="selectCategory('bike',this)">
+   <div class="categoryIcon">
+    <svg class="vehicle-drawing" viewBox="0 0 64 64">
+     <circle cx="15" cy="44" r="9"/>
+     <circle cx="49" cy="44" r="9"/>
+     <path d="M15 44l11-18h11l12 18H31l-5-18m11 0h8l5 18"/>
+     <path d="M29 26l-5-5h-7m20 5l5-5h6"/>
+    </svg>
+   </div>
+   <p>Buy Used Bike</p>
+  </div>
+
+  <div class="categoryItem"
+   onclick="show('seller')">
+   <div class="categoryIcon">
+    <svg class="vehicle-drawing" viewBox="0 0 64 64">
+     <circle cx="23" cy="25" r="13"/>
+     <circle cx="23" cy="25" r="5"/>
+     <path d="M33 34l20 20 5-5-5-5 4-4-7-7-4 4-7-7"/>
+    </svg>
+   </div>
+   <p>Sell Vehicle</p>
+  </div>
+
+ </div>
 </header>
 
-<main id="appContent" style="display:none">
+<main id="appContent">
+
+<!-- APPROVED VEHICLES -->
 <section id="home">
-  <div class="grid" style="margin-top:15px">
-    <div class="card" onclick="show('buyer')"><div class="action">🚘 Buy Vehicle</div><div class="muted">Find cars &amp; bikes</div></div>
-    <div class="card" onclick="show('seller')"><div class="action">🏪 Sell Vehicle</div><div class="muted">List your vehicle</div></div>
-  </div>
-  <h2>Vehicle Type</h2>
-  <div class="chips">
-    <button class="chip" onclick="filterVehicles('all')">All</button>
-    <button class="chip" onclick="filterVehicles('car')">🚗 Cars</button>
-    <button class="chip" onclick="filterVehicles('bike')">🏍️ Bikes</button>
-  </div>
-  <h2>Featured Vehicles</h2>
-  <div id="vehicles"></div>
+
+ <h2>Approved Vehicles</h2>
+
+ <div id="vehicles">
+  <div class="card muted">Connecting to vehicle database...</div>
+ </div>
+
 </section>
 
-<section id="buyer" class="hidden">
-  <h2>Buyer</h2>
-  <div class="card"><p><b>Browse approved vehicles</b></p><p class="muted">Search and view vehicle photos/details. Contact Motorbike & Car Zone for enquiries.</p><button class="primary" onclick="show('home')">View Vehicles</button></div>
-</section>
-
+<!-- SELL VEHICLE -->
 <section id="seller" class="hidden">
-  <h2>Sell Your Vehicle</h2>
-  <div class="card"><p class="muted">No login required. Submit your vehicle for Admin approval.</p>
-    <div class="form">
-      <select id="type"><option value="car">Car</option><option value="bike">Bike</option></select>
-      <input id="name" placeholder="Seller Name">
-      <input id="phone" placeholder="Mobile Number" inputmode="tel">
-      <input id="model" placeholder="Brand & Model">
-      <input id="year" placeholder="Year" inputmode="numeric">
-      <input id="km" placeholder="KM Driven" inputmode="numeric">
-      <input id="colour" placeholder="Colour">
-      <input id="location" placeholder="Location (Karnataka)">
-      <input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric">
 
-      <div class="filebox">
-        <b>Vehicle Photos</b>
-        <input id="photos" type="file" accept="image/*" multiple>
-        <small>Select vehicle photos for Admin review.</small>
-      </div>
+ <h2>Sell Your Vehicle</h2>
 
-      <div class="filebox">
-        <b>RC Card</b>
-        <input id="rc" type="file" accept="image/*,.pdf">
-      </div>
+ <div class="card">
 
-      <div class="filebox">
-        <b>Insurance</b>
-        <input id="insurance" type="file" accept="image/*,.pdf">
-      </div>
+  <p class="muted">
+   Submit your vehicle for Admin approval.
+  </p>
 
-      <div class="filebox">
-        <b>FC</b>
-        <input id="fc" type="file" accept="image/*,.pdf">
-      </div>
+  <div class="form">
 
-      <textarea id="notes" rows="3" placeholder="Additional vehicle details"></textarea>
-      <div id="sellerProgress" class="progress"></div>
-      <button id="submitVehicleBtn" class="primary" onclick="submitVehicle()">Submit Vehicle</button>
-      <div id="status" class="muted"></div>
-    </div>
+   <select id="type">
+    <option value="car">Car</option>
+    <option value="bike">Bike</option>
+   </select>
+
+   <input id="name" placeholder="Seller Name">
+   <input id="phone" placeholder="Mobile Number" inputmode="tel">
+   <input id="model" placeholder="Brand & Model">
+   <input id="year" placeholder="Year" inputmode="numeric">
+   <input id="km" placeholder="KM Driven" inputmode="numeric">
+   <input id="colour" placeholder="Colour">
+   <input id="location" placeholder="Location (Karnataka)">
+   <input id="amount" placeholder="Selling Amount (₹)" inputmode="numeric">
+
+   <div class="filebox">
+    <b>Vehicle Photos</b>
+    <input id="photos" type="file" accept="image/*" multiple>
+    <small>Select clear vehicle photos. Maximum 8 photos, 5 MB each.</small>
+   </div>
+
+   <textarea id="notes" rows="3"
+    placeholder="Additional vehicle details"></textarea>
+
+   <div id="sellerProgress" class="progress"></div>
+
+   <button id="submitVehicleBtn"
+    class="primary" onclick="submitVehicle()">
+    Submit Vehicle
+   </button>
+
+   <div id="status" class="muted"></div>
+
   </div>
+ </div>
 </section>
+
 </main>
 
-<div id="appNav" class="nav" style="display:none">
-  <button onclick="show('home')">🏠<br>Home</button>
-  <button onclick="show('buyer')">🔍<br>Buy</button>
-  <button onclick="show('seller')">➕<br>Sell</button>
-</div>
-
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
 import {
-  getAuth, signInAnonymously, onAuthStateChanged
+ getAuth,
+ signInAnonymously,
+ onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
 import {
-  getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot
+ getFirestore,
+ collection,
+ addDoc,
+ serverTimestamp,
+ query,
+ where,
+ onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
+
+/* FIREBASE CONFIGURATION */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
-  authDomain: "motorbike--car-zone.firebaseapp.com",
-  projectId: "motorbike--car-zone",
-  storageBucket: "motorbike--car-zone.firebasestorage.app",
-  messagingSenderId: "604944422467",
-  appId: "1:604944422467:web:57f36ceb7b3f60326b26f6",
-  measurementId: "G-F9BFX3GFTB"
+ apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
+ authDomain: "motorbike--car-zone.firebaseapp.com",
+ projectId: "motorbike--car-zone",
+ storageBucket: "motorbike--car-zone.firebasestorage.app",
+ messagingSenderId: "604944422467",
+ appId: "1:604944422467:web:57f36ceb7b3f60326b26f6",
+ measurementId: "G-F9BFX3GFTB"
 };
+
+
+/* CLOUDINARY CONFIGURATION */
 
 const CLOUD_NAME = "forby6hp";
 const UPLOAD_PRESET = "motorbike_car_zone";
-const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
+
+const CLOUDINARY_UPLOAD_URL =
+ `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
+
+/* INITIALIZE FIREBASE */
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -180,273 +502,541 @@ let currentUser = null;
 let currentVehicleList = [];
 let displayedVehicleList = [];
 let approvedVehiclesUnsubscribe = null;
+let activeFilter = "all";
 
-const gate = document.getElementById("firstLoginGate");
-const appContent = document.getElementById("appContent");
-const appNav = document.getElementById("appNav");
 
-function escapeHtml(value){
-  return String(value ?? "").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-}
-function showApp(){
-  gate.style.display="none";
-  appContent.style.display="block";
-  appNav.style.display="flex";
-  loadApprovedVehicles();
-}
-function showGate(){
-  gate.style.display="none";
-  appContent.style.display="block";
-  appNav.style.display="flex";
+/* HTML SECURITY */
+
+function escapeHtml(value) {
+ return String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[ch]));
 }
 
-onAuthStateChanged(auth,user=>{
-  currentUser=user||null;
-});
 
-showApp();
-if(!auth.currentUser){
-  signInAnonymously(auth).catch(error=>{
-    console.error("Anonymous sign-in error:",error);
-    const status=document.getElementById("status");
-    if(status) status.textContent="Connection error: "+(error.code||"unknown");
-  });
-}
+/* SHOW SECTION */
 
-function normalizeVehicle(docSnap){
-  const d=docSnap.data();
-  const rawType=String(d.type||"car").trim().toLowerCase();
-  const type=(rawType==="bike"||rawType==="bikes"||rawType==="motorbike"||rawType==="motorcycle")?"bike":"car";
+window.show = function(id) {
 
-  const photoCandidates=[
-    ...(Array.isArray(d.photoUrls)?d.photoUrls:[]),
-    ...(Array.isArray(d.photos)?d.photos:[]),
-    ...(Array.isArray(d.vehiclePhotos)?d.vehiclePhotos:[]),
-    ...(Array.isArray(d.imageUrls)?d.imageUrls:[])
-  ];
-  const photoUrls=[...new Set(photoCandidates.map(x=>{
-    if(typeof x==="string") return x;
-    if(x && typeof x==="object") return x.url||x.secure_url||x.downloadURL||x.src||"";
-    return "";
-  }).filter(Boolean))];
+ ["home","seller"].forEach(section => {
+  document.getElementById(section).classList.add("hidden");
+ });
 
-  return {
-    id:docSnap.id,type:type,name:d.model||d.brand||"Vehicle",
-    year:d.year||"",km:d.km||"",loc:d.location||d.loc||"",
-    price:d.amount||d.price||"",colour:d.colour||"",
-    sellerName:d.sellerName||"",sellerPhone:d.sellerPhone||"",
-    notes:d.notes||"",status:d.status||"pending",
-    photoUrls:photoUrls,documentUrls:d.documentUrls||{},demo:false
-  };
-}
+ document.getElementById(id).classList.remove("hidden");
 
-function loadApprovedVehicles(){
-  if(approvedVehiclesUnsubscribe){
-    approvedVehiclesUnsubscribe();
-    approvedVehiclesUnsubscribe=null;
+ window.scrollTo(0,0);
+};
+
+
+/* FIREBASE AUTHENTICATION */
+
+let approvedLoadStarted = false;
+
+onAuthStateChanged(auth, async user => {
+
+ currentUser = user || null;
+
+ if(user) {
+
+  if(!approvedLoadStarted) {
+   approvedLoadStarted = true;
+   loadApprovedVehicles();
   }
 
-  const q=query(collection(db,"vehicles"),where("status","==","approved"));
-  approvedVehiclesUnsubscribe=onSnapshot(q,
-    snap=>{
-      const approved=[];
-      snap.forEach(docSnap=>approved.push(normalizeVehicle(docSnap)));
-      currentVehicleList=approved;
-      displayedVehicleList=approved.slice();
-      render(displayedVehicleList);
-    },
-    error=>{
-      console.error("Approved vehicle realtime error:",error);
-      const box=document.getElementById("vehicles");
-      if(box) box.innerHTML='<div class="card muted">Unable to load approved vehicles. Please refresh and try again.</div>';
-    }
+ } else {
+
+  try {
+
+   await signInAnonymously(auth);
+
+  } catch(error) {
+
+   console.error("Firebase authentication error:",error);
+
+   document.getElementById("vehicles").innerHTML =
+    '<div class="card muted">Firebase connection error: ' +
+    escapeHtml(error.code || error.message) +
+    '. Check Anonymous Authentication settings.</div>';
+
+  }
+
+ }
+
+});
+
+
+/* NORMALIZE VEHICLE DATA */
+
+function normalizeVehicle(docSnap) {
+
+ const d = docSnap.data();
+
+ const rawType = String(d.type || "car").trim().toLowerCase();
+
+ const type = [
+  "bike","bikes","motorbike","motorcycle"
+ ].includes(rawType) ? "bike" : "car";
+
+ const photoCandidates = [
+  ...(Array.isArray(d.photoUrls) ? d.photoUrls : []),
+  ...(Array.isArray(d.photos) ? d.photos : []),
+  ...(Array.isArray(d.vehiclePhotos) ? d.vehiclePhotos : []),
+  ...(Array.isArray(d.imageUrls) ? d.imageUrls : [])
+ ];
+
+ const photoUrls = [...new Set(photoCandidates.map(x => {
+
+  if(typeof x === "string") return x;
+
+  if(x && typeof x === "object") {
+   return x.url || x.secure_url || x.downloadURL || x.src || "";
+  }
+
+  return "";
+
+ }).filter(Boolean))];
+
+ return {
+  id:docSnap.id,
+  type:type,
+  name:d.model || d.brand || "Vehicle",
+  year:d.year || "",
+  km:d.km || "",
+  loc:d.location || d.loc || "",
+  price:d.amount || d.price || "",
+  colour:d.colour || "",
+  notes:d.notes || "",
+  photoUrls:photoUrls
+ };
+
+}
+
+
+/* LOAD ONLY APPROVED VEHICLES */
+
+function loadApprovedVehicles() {
+
+ if(approvedVehiclesUnsubscribe) {
+  approvedVehiclesUnsubscribe();
+ }
+
+ const vehiclesQuery = query(
+  collection(db,"vehicles"),
+  where("status","==","approved")
+ );
+
+ approvedVehiclesUnsubscribe = onSnapshot(
+  vehiclesQuery,
+
+  snap => {
+
+   currentVehicleList = [];
+
+   snap.forEach(docSnap => {
+    currentVehicleList.push(normalizeVehicle(docSnap));
+   });
+
+   applyCurrentFilter();
+
+  },
+
+  error => {
+
+   console.error("Firestore error:",error);
+
+   document.getElementById("vehicles").innerHTML =
+    '<div class="card muted">Unable to load vehicles. Firebase error: ' +
+    escapeHtml(error.code || error.message) +
+    '. Check Firestore security rules and status field.</div>';
+
+  }
+
+ );
+
+}
+
+
+/* FILTER APPROVED VEHICLES */
+
+function applyCurrentFilter() {
+
+ const filtered = activeFilter === "all"
+  ? currentVehicleList.slice()
+  : currentVehicleList.filter(v => v.type === activeFilter);
+
+ render(filtered);
+
+}
+
+
+/* DISPLAY VEHICLES */
+
+window.render = function(list = currentVehicleList) {
+
+ displayedVehicleList = list.slice();
+
+ const box = document.getElementById("vehicles");
+
+ if(!list.length) {
+
+  box.innerHTML =
+   '<div class="card muted">No approved vehicles found.</div>';
+
+  return;
+
+ }
+
+ box.innerHTML = list.map((v,i) => {
+
+  const photos = Array.isArray(v.photoUrls)
+   ? v.photoUrls.filter(Boolean)
+   : [];
+
+  const photoHtml = photos.length ? `
+   <div class="mainPhotoGallery">
+
+    <div class="mainPhoto">
+     <img src="${escapeHtml(photos[0])}"
+      alt="Vehicle photo" loading="lazy">
+    </div>
+
+    ${photos.slice(1,4).map(url => `
+     <div class="smallPhoto">
+      <img src="${escapeHtml(url)}"
+       alt="Vehicle photo" loading="lazy">
+     </div>
+    `).join("")}
+
+    ${photos.length > 4
+     ? `<div class="morePhotos">+${photos.length-4}</div>`
+     : ""}
+
+   </div>
+  ` : "";
+
+  return `
+   <div class="card vehicle">
+
+    <span class="badge">APPROVED</span>
+
+    ${photoHtml}
+
+    <h3>${escapeHtml(v.name)}</h3>
+
+    <div class="spec">
+     ${escapeHtml(v.year)} •
+     ${escapeHtml(v.km)} KM •
+     ${escapeHtml(v.colour)}
+    </div>
+
+    <div class="spec">
+     Location: ${escapeHtml(v.loc)}
+    </div>
+
+    <div class="price">
+     ₹${escapeHtml(v.price)}
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+
+     <button class="light" onclick="viewDetails(${i})">
+      View Details
+     </button>
+
+     <button class="primary" onclick="contactByIndex(${i})">
+      WhatsApp Enquiry
+     </button>
+
+    </div>
+
+   </div>
+  `;
+
+ }).join("");
+
+};
+
+
+/* CATEGORY FILTER */
+
+window.selectCategory = function(type,element) {
+
+ activeFilter = type;
+
+ document.querySelectorAll(".categoryItem").forEach(item => {
+  item.classList.remove("active");
+ });
+
+ if(element) {
+  element.classList.add("active");
+ }
+
+ show("home");
+
+ applyCurrentFilter();
+
+};
+
+
+/* SEARCH */
+
+window.runSearch = function() {
+
+ const term = (
+  document.getElementById("searchInput").value || ""
+ ).trim().toLowerCase();
+
+ const base = activeFilter === "all"
+  ? currentVehicleList
+  : currentVehicleList.filter(v => v.type === activeFilter);
+
+ if(!term) {
+  render(base);
+  return;
+ }
+
+ const results = base.filter(v => [
+
+  v.type,
+  v.name,
+  v.year,
+  v.km,
+  v.loc,
+  v.price,
+  v.colour
+
+ ].some(value =>
+  String(value ?? "").toLowerCase().includes(term)
+ ));
+
+ render(results);
+
+};
+
+
+document.getElementById("searchInput").addEventListener(
+ "keydown",
+ event => {
+  if(event.key === "Enter") runSearch();
+ }
+);
+
+
+/* AUTOMATIC CATEGORY SLIDING */
+
+const categoryStrip = document.querySelector(".categoryScroll");
+
+let categoryPauseUntil = 0;
+
+if(categoryStrip) {
+
+ setInterval(() => {
+
+  if(Date.now() < categoryPauseUntil) return;
+
+  const maxScroll =
+   categoryStrip.scrollWidth - categoryStrip.clientWidth;
+
+  if(maxScroll <= 2) return;
+
+  const step = Math.max(
+   100,
+   Math.round(categoryStrip.clientWidth * 0.55)
   );
+
+  if(categoryStrip.scrollLeft + step >= maxScroll - 5) {
+
+   categoryStrip.scrollTo({
+    left:0,
+    behavior:"smooth"
+   });
+
+  } else {
+
+   categoryStrip.scrollBy({
+    left:step,
+    behavior:"smooth"
+   });
+
+  }
+
+ },2000);
+
+ ["touchstart","pointerdown","wheel"].forEach(eventName => {
+
+  categoryStrip.addEventListener(eventName,() => {
+   categoryPauseUntil = Date.now() + 5000;
+  },{passive:true});
+
+ });
+
 }
 
-window.render=function(list=currentVehicleList){
-  displayedVehicleList=list.slice();
-  const box=document.getElementById("vehicles");
-  if(!list.length){box.innerHTML='<div class="card muted">No vehicles found.</div>';return;}
-  box.innerHTML=list.map((v,i)=>{
-    const badge='<span class="badge approved">APPROVED</span>';
-    const photos=Array.isArray(v.photoUrls)?v.photoUrls.filter(Boolean):[];
-    const photoHtml=photos.length?`
-      <div class="mainPhotoGallery">
-        <div class="mainPhoto"><img src="${escapeHtml(photos[0])}" alt="Vehicle photo" loading="lazy"></div>
-        ${photos.slice(1,4).map(u=>`<div class="smallPhoto"><img src="${escapeHtml(u)}" alt="Vehicle photo" loading="lazy"></div>`).join("")}
-        ${photos.length>4?`<div class="morePhotos">+${photos.length-4}</div>`:""}
-      </div>`:"";
-    return `<div class="card vehicle">
-      ${badge}
-      ${photoHtml}
-      <h3>${escapeHtml(v.name)}</h3>
-      <div class="spec">${escapeHtml(v.year)} • ${escapeHtml(v.km)} • ${escapeHtml(v.colour)}</div>
-      <div class="spec">📍 ${escapeHtml(v.loc)}</div>
-      <div class="price">${escapeHtml(v.price)}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="light" onclick="viewDetails(${i})">View Details</button>
-        <button class="primary" onclick="contactByIndex(${i})">Contact Motorbike &amp; Car Zone</button>
-      </div>
-    </div>`;
-  }).join("");
-};
 
-window.filterVehicles=function(t){
-  const all=currentVehicleList.slice();
-  if(t==="all") render(all);
-  else render(all.filter(v=>String(v.type||"").toLowerCase()===String(t).toLowerCase()));
-};
+/* WHATSAPP CONTACT */
 
-window.runSearch=function(){
-  const q=(document.getElementById("searchInput").value||"").trim().toLowerCase();
-  const all=currentVehicleList.slice();
-  if(!q){render(all);return;}
-  render(all.filter(v=>[
-    v.type,v.name,v.year,v.km,v.loc,v.price,v.colour
-  ].some(x=>String(x??"").toLowerCase().includes(q))));
-};
+function contact(model,price) {
 
-document.getElementById("searchInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter") window.runSearch();
-});
+ const number = "918722892965";
 
-window.show=function(id){
-  ["home","buyer","seller"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  window.scrollTo(0,0);
-};
+ const message =
+  "Hello MOTORBIKE & CAR ZONE, I am interested in " +
+  model +
+  " listed at ₹" +
+  price +
+  ". Please help me with this vehicle.";
 
-function contact(model,price){
-  const number="918951954077";
-  const msg="Hello MOTORBIKE & CAR ZONE, I am interested in "+model+" listed at "+price+". Please help me with this vehicle.";
-  window.open("https://wa.me/"+number+"?text="+encodeURIComponent(msg),"_blank");
-}
-window.contactByIndex=function(index){
-  const v=displayedVehicleList[index];
-  if(v) contact(v.name,v.price);
-};
+ window.open(
+  "https://wa.me/" + number +
+  "?text=" + encodeURIComponent(message),
+  "_blank",
+  "noopener"
+ );
 
-window.viewDetails=function(index){
-  const v=displayedVehicleList[index];
-  if(!v)return;
-  document.getElementById("detailsTitle").textContent=v.name;
-  let html="";
-  const row=(label,val)=>`<div class="detailRow"><div class="detailLabel">${escapeHtml(label)}</div><div class="detailValue">${escapeHtml(val)}</div></div>`;
-  html+=row("Vehicle Type",v.type==="car"?"Car":"Bike");
-  html+=row("Brand / Model",v.name);
-  html+=row("Year",v.year);
-  html+=row("KM Driven",v.km);
-  html+=row("Colour",v.colour);
-  html+=row("Location",v.loc);
-  html+=row("Selling Price",v.price);
-  if(v.notes) html+=row("Vehicle Details",v.notes);
-  if(v.photoUrls?.length){
-    html+=`<div class="detailRow"><div class="detailLabel">Vehicle Photos</div><div class="mediaGrid">${
-      v.photoUrls.map(u=>`<a href="${escapeHtml(u)}" target="_blank" rel="noopener"><img src="${escapeHtml(u)}" alt="Vehicle photo" loading="lazy"></a>`).join("")
-    }</div></div>`;
-  }
-  document.getElementById("detailsBody").innerHTML=html;
-  document.getElementById("detailsWhatsApp").textContent="Contact Motorbike & Car Zone";
-  document.getElementById("detailsWhatsApp").onclick=()=>contact(v.name,v.price);
-  document.getElementById("detailsModal").style.display="flex";
-};
-
-window.closeDetails=function(){document.getElementById("detailsModal").style.display="none";};
-
-async function uploadToCloudinary(file){
-  const fd=new FormData();
-  fd.append("file",file);
-  fd.append("upload_preset",UPLOAD_PRESET);
-  const res=await fetch(CLOUDINARY_UPLOAD_URL,{method:"POST",body:fd});
-  const data=await res.json();
-  if(!res.ok || !data.secure_url) throw new Error(data.error?.message||"Cloudinary upload failed");
-  return data.secure_url;
 }
 
-async function uploadFiles(files,label){
-  const urls=[];
-  for(let i=0;i<files.length;i++){
-    document.getElementById("sellerProgress").textContent=`Uploading ${label} ${i+1} of ${files.length}...`;
-    urls.push(await uploadToCloudinary(files[i]));
+
+window.contactByIndex = function(index) {
+
+ const vehicle = displayedVehicleList[index];
+
+ if(vehicle) {
+  contact(vehicle.name,vehicle.price);
+ }
+
+};
+
+
+/* VEHICLE DETAILS */
+
+window.viewDetails = function(index) {
+
+ const v = displayedVehicleList[index];
+
+ if(!v) return;
+
+ document.getElementById("detailsTitle").textContent = v.name;
+
+ const row = (label,value) => `
+  <div class="detailRow">
+   <div class="detailLabel">${escapeHtml(label)}</div>
+   <div class="detailValue">${escapeHtml(value)}</div>
+  </div>
+ `;
+
+ let html = "";
+
+ html += row("Vehicle Type",v.type === "car" ? "Car" : "Bike");
+ html += row("Brand / Model",v.name);
+ html += row("Year",v.year);
+ html += row("KM Driven",v.km);
+ html += row("Colour",v.colour);
+ html += row("Location",v.loc);
+ html += row("Selling Price","₹" + v.price);
+
+ if(v.notes) {
+  html += row("Vehicle Details",v.notes);
+ }
+
+ if(v.photoUrls?.length) {
+
+  html += `
+   <div class="detailRow">
+    <div class="detailLabel">Vehicle Photos</div>
+
+    <div class="mediaGrid">
+
+     ${v.photoUrls.map(url => `
+      <a href="${escapeHtml(url)}"
+       target="_blank" rel="noopener">
+       <img src="${escapeHtml(url)}"
+        alt="Vehicle photo">
+      </a>
+     `).join("")}
+
+    </div>
+   </div>
+  `;
+
+ }
+
+ document.getElementById("detailsBody").innerHTML = html;
+
+ document.getElementById("detailsWhatsApp").onclick = () => {
+  contact(v.name,v.price);
+ };
+
+ document.getElementById("detailsModal").style.display = "flex";
+
+};
+
+
+window.closeDetails = function() {
+ document.getElementById("detailsModal").style.display = "none";
+};
+
+
+/* CLOUDINARY PHOTO UPLOAD */
+
+async function uploadVehiclePhoto(file) {
+
+ const formData = new FormData();
+
+ formData.append("file",file);
+ formData.append("upload_preset",UPLOAD_PRESET);
+
+ const response = await fetch(
+  CLOUDINARY_UPLOAD_URL,
+  {
+   method:"POST",
+   body:formData
   }
-  return urls;
+ );
+
+ const data = await response.json();
+
+ if(!response.ok || !data.secure_url) {
+  throw new Error(data.error?.message || "Photo upload failed");
+ }
+
+ return data.secure_url;
+
 }
 
-window.submitVehicle=async function(){
-  const ids=["name","phone","model","year","km","amount","location"];
-  if(ids.some(id=>!document.getElementById(id).value.trim())){
-    document.getElementById("status").textContent="Please fill Name, Mobile, Model, Year, KM, Amount and Location.";
-    return;
-  }
-  if(!currentUser){
-    document.getElementById("status").textContent="Connecting securely. Please wait a moment and tap Submit again.";
-    try{
-      const result=await signInAnonymously(auth);
-      currentUser=result.user;
-    }catch(e){
-      console.error(e);
-      document.getElementById("status").textContent="Connection error: "+(e.code||"unknown");
-      return;
-    }
-  }
 
-  const btn=document.getElementById("submitVehicleBtn");
-  btn.disabled=true;
-  document.getElementById("status").textContent="";
-  document.getElementById("sellerProgress").textContent="Starting upload...";
+/* SUBMIT VEHICLE */
 
-  try{
-    const photoFiles=Array.from(document.getElementById("photos").files||[]);
-    const rcFile=document.getElementById("rc").files[0]||null;
-    const insuranceFile=document.getElementById("insurance").files[0]||null;
-    const fcFile=document.getElementById("fc").files[0]||null;
+window.submitVehicle = async function() {
 
-    const photoUrls=photoFiles.length?await uploadFiles(photoFiles,"photo"):[];
-    const documentUrls={};
-    if(rcFile) documentUrls.rc=(await uploadFiles([rcFile],"RC"))[0];
-    if(insuranceFile) documentUrls.insurance=(await uploadFiles([insuranceFile],"insurance"))[0];
-    if(fcFile) documentUrls.fc=(await uploadFiles([fcFile],"FC"))[0];
+ const requiredIds = [
+  "name",
+  "phone",
+  "model",
+  "year",
+  "km",
+  "amount",
+  "location"
+ ];
 
-    document.getElementById("sellerProgress").textContent="Saving vehicle for Admin approval...";
-    await addDoc(collection(db,"vehicles"),{
-      type:document.getElementById("type").value,
-      model:document.getElementById("model").value.trim(),
-      brand:document.getElementById("model").value.trim(),
-      sellerName:document.getElementById("name").value.trim(),
-      sellerPhone:document.getElementById("phone").value.trim(),
-      sellerId:currentUser.uid,
-      year:document.getElementById("year").value.trim(),
-      km:document.getElementById("km").value.trim(),
-      colour:document.getElementById("colour").value.trim(),
-      location:document.getElementById("location").value.trim(),
-      amount:document.getElementById("amount").value.trim(),
-      notes:document.getElementById("notes").value.trim(),
-      status:"pending",
-      photoUrls:photoUrls,
-      documentUrls:documentUrls,
-      photoFileNames:photoFiles.map(f=>f.name),
-      documentFileNames:{
-        rc:rcFile?.name||"",
-        insurance:insuranceFile?.name||"",
-        fc:fcFile?.name||""
-      },
-      createdAt:serverTimestamp()
-    });
+ const status = document.getElementById("status");
+ const progress = document.getElementById("sellerProgress");
+ const button = document.getElementById("submitVehicleBtn");
 
-    document.getElementById("sellerProgress").textContent="";
-    document.getElementById("status").innerHTML="<b>Submitted successfully.</b> Photos and documents uploaded. Status: Pending Admin Approval.";
-    document.getElementById("photos").value="";
-    document.getElementById("rc").value="";
-    document.getElementById("insurance").value="";
-    document.getElementById("fc").value="";
-  }catch(error){
-    console.error(error);
-    document.getElementById("sellerProgress").textContent="";
-    document.getElementById("status").textContent="Upload/Save error: "+(error.message||error.code||"unknown error");
-  }finally{
-    btn.disabled=false;
-  }
-};
-</script>
-</body>
-</html>
+ if(requiredIds.some(id =>
+  !document.getElementById(id).value.trim()
+ )) {
+
+  status.textContent =
+   "Please fill Name, Mobile, Model, Year, KM, Amount and Location.";
+
+  return;
+
+ }
+
+ const phone = document.getElementById("phone").value.trim();
+
+ if(!/^[0-
