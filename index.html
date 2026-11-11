@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,274 +7,225 @@
 <title>MOTORBIKE & CAR ZONE</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+scroll-behavior:smooth;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #f3f4f6;
-    color: #222;
+body{
+background:#0b0b0b;
+color:white;
 }
 
-header {
-    background: #111;
-    color: white;
-    padding: 18px 12px;
-    text-align: center;
+header{
+background:#111;
+padding:18px 7%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
+z-index:100;
+border-bottom:2px solid #e50914;
 }
 
-header h1 {
-    font-size: 25px;
-    letter-spacing: 1px;
+.logo{
+font-size:23px;
+font-weight:bold;
+color:white;
 }
 
-header p {
-    font-size: 13px;
-    margin-top: 6px;
-    color: #ddd;
+.logo span{color:#e50914;}
+
+nav a{
+color:white;
+text-decoration:none;
+margin-left:22px;
+font-size:14px;
 }
 
-.search-box {
-    padding: 12px;
-    background: white;
+nav a:hover{color:#e50914;}
+
+.hero{
+min-height:570px;
+display:flex;
+align-items:center;
+padding:70px 8%;
+background:
+linear-gradient(90deg,#000 10%,rgba(0,0,0,.7),transparent),
+url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1800&q=85')
+center/cover;
 }
 
-.search-box input {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
+.hero-content{max-width:600px;}
+
+.hero h1{
+font-size:55px;
+line-height:1.15;
+margin-bottom:20px;
 }
 
-nav {
-    display: flex;
-    overflow-x: auto;
-    gap: 9px;
-    padding: 12px;
-    background: #222;
-    white-space: nowrap;
+.hero h1 span{color:#e50914;}
+
+.hero p{
+font-size:17px;
+color:#ddd;
+line-height:1.7;
+margin-bottom:28px;
 }
 
-nav button {
-    flex: 0 0 auto;
-    border: 1px solid white;
-    background: transparent;
-    color: white;
-    padding: 11px 15px;
-    border-radius: 7px;
-    font-size: 14px;
-    cursor: pointer;
+.btn{
+display:inline-block;
+padding:14px 25px;
+background:#e50914;
+color:white;
+text-decoration:none;
+font-weight:bold;
+border-radius:5px;
+margin:5px;
 }
 
-nav button.active,
-nav button:hover {
-    background: white;
-    color: black;
+.btn:hover{background:#b9000a;}
+
+section{padding:65px 8%;}
+
+.section-title{
+text-align:center;
+font-size:32px;
+margin-bottom:35px;
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 15px;
+.section-title span{color:#e50914;}
+
+.categories{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:25px;
 }
 
-h2 {
-    margin-bottom: 15px;
+.category{
+background:#171717;
+border-radius:12px;
+overflow:hidden;
+transition:.3s;
 }
 
-.hidden {
-    display: none !important;
+.category:hover{
+transform:translateY(-8px);
 }
 
-.vehicle-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
+.category img{
+width:100%;
+height:220px;
+object-fit:cover;
 }
 
-.card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px #0001;
+.category-content{
+padding:23px;
 }
 
-.card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    background: #ddd;
+.category h3{
+font-size:23px;
+margin-bottom:12px;
 }
 
-.card-content {
-    padding: 13px;
+.category p{
+color:#bbb;
+line-height:1.6;
+margin-bottom:15px;
 }
 
-.card h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
+.services{
+background:#141414;
 }
 
-.price {
-    color: #d71920;
-    font-size: 20px;
-    font-weight: bold;
-    margin: 8px 0;
+.service-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+gap:20px;
 }
 
-.card p {
-    font-size: 14px;
-    margin: 5px 0;
-    color: #555;
+.service{
+background:#202020;
+padding:30px 20px;
+text-align:center;
+border-radius:10px;
+border-bottom:3px solid #e50914;
 }
 
-.card button,
-.submit-btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 7px;
-    background: #111;
-    color: white;
-    cursor: pointer;
-    margin-top: 10px;
-    font-size: 15px;
+.service h3{
+margin-bottom:12px;
 }
 
-.card button:hover,
-.submit-btn:hover {
-    background: #444;
+.service p{
+color:#bbb;
+line-height:1.5;
 }
 
-.form-box {
-    background: white;
-    padding: 18px;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: auto;
+.about{
+text-align:center;
+max-width:850px;
+margin:auto;
 }
 
-.form-box input,
-.form-box select,
-.form-box textarea {
-    width: 100%;
-    padding: 12px;
-    margin: 7px 0 13px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 15px;
+.about p{
+color:#ccc;
+line-height:1.9;
+font-size:16px;
 }
 
-.form-box label {
-    font-weight: bold;
-    font-size: 14px;
+.contact{
+background:#161616;
+text-align:center;
 }
 
-.form-box textarea {
-    min-height: 80px;
+.contact p{
+margin:15px;
+color:#ddd;
+font-size:18px;
 }
 
-.status {
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 6px;
-    background: #eee;
-    font-size: 14px;
+footer{
+background:#050505;
+padding:25px;
+text-align:center;
+color:#999;
 }
 
-#detailsModal {
-    position: fixed;
-    inset: 0;
-    background: #000b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    z-index: 10;
+.whatsapp{
+position:fixed;
+right:20px;
+bottom:20px;
+background:#25D366;
+color:white;
+padding:15px 20px;
+border-radius:50px;
+text-decoration:none;
+font-weight:bold;
+z-index:200;
 }
 
-.modal-box {
-    background: white;
-    width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 18px;
-    border-radius: 10px;
+@media(max-width:700px){
+header{
+flex-direction:column;
+gap:15px;
 }
-
-.modal-box img {
-    width: 100%;
-    max-height: 280px;
-    object-fit: contain;
-    margin-bottom: 10px;
+nav{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:12px;
 }
-
-.close-btn {
-    float: right;
-    background: #111;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
+nav a{margin:0;}
+.hero{
+min-height:480px;
+background-position:center;
 }
-
-.whatsapp {
-    position: fixed;
-    bottom: 18px;
-    right: 15px;
-    background: #20bd5a;
-    color: white;
-    padding: 14px 18px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    z-index: 5;
-}
-
-footer {
-    text-align: center;
-    padding: 25px;
-    margin-top: 30px;
-    background: #111;
-    color: white;
-    font-size: 13px;
-}
-
-@media(max-width: 500px) {
-    header h1 {
-        font-size: 21px;
-    }
-
-    .vehicle-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 9px;
-    }
-
-    .card img {
-        height: 125px;
-    }
-
-    .card-content {
-        padding: 9px;
-    }
-
-    .card h3 {
-        font-size: 15px;
-    }
-
-    .card p {
-        font-size: 12px;
-    }
-
-    .price {
-        font-size: 17px;
-    }
+.hero h1{font-size:38px;}
+section{padding:50px 6%;}
 }
 </style>
 </head>
@@ -281,567 +233,138 @@ footer {
 <body>
 
 <header>
-    <h1>MOTORBIKE & CAR ZONE</h1>
-    <p>Buy • Sell • Find Your Vehicle</p>
+<div class="logo">MOTORBIKE <span>&</span> CAR ZONE</div>
+<nav>
+<a href="#home">Home</a>
+<a href="#cars">Cars</a>
+<a href="#bikes">Bikes</a>
+<a href="#services">Services</a>
+<a href="#contact">Contact</a>
+</nav>
 </header>
 
-<div class="search-box" id="searchArea">
-    <input
-        type="search"
-        id="searchInput"
-        placeholder="Search car, bike or model..."
-    >
+<div class="hero" id="home">
+<div class="hero-content">
+<h1>FIND YOUR<br><span>DREAM RIDE</span></h1>
+<p>
+Welcome to Motorbike & Car Zone.
+Explore vehicles, discover your next ride
+and contact us for enquiries.
+</p>
+<a href="#cars" class="btn">EXPLORE CARS</a>
+<a href="#bikes" class="btn">EXPLORE BIKES</a>
+</div>
 </div>
 
-<nav id="mainMenu">
-    <button class="active" data-category="all"
-        onclick="selectCategory('all', this)">🏠 All</button>
+<section id="cars">
+<h2 class="section-title">EXPLORE <span>CARS</span></h2>
 
-    <button data-category="car"
-        onclick="selectCategory('car', this)">🚗 Buy Used Car</button>
-
-    <button data-category="bike"
-        onclick="selectCategory('bike', this)">🏍 Buy Used Bike</button>
-
-    <button onclick="showSeller(this)">＋ Sell Vehicle</button>
-</nav>
-
-<main class="container">
-
-    <section id="home">
-        <h2 id="pageTitle">Available Vehicles</h2>
-
-        <div id="connectionStatus" class="status">
-            Connecting to vehicle database...
-        </div>
-
-        <div id="vehicleGrid" class="vehicle-grid"></div>
-    </section>
-
-    <section id="seller" class="hidden">
-        <div class="form-box">
-            <h2>Sell Your Vehicle</h2>
-
-            <div id="formStatus" class="status hidden"></div>
-
-            <form id="vehicleForm">
-
-                <label>Vehicle Type</label>
-                <select id="type" required>
-                    <option value="">Select Type</option>
-                    <option value="car">Car</option>
-                    <option value="bike">Bike</option>
-                </select>
-
-                <label>Brand</label>
-                <input id="brand" placeholder="Example: Honda" required>
-
-                <label>Model</label>
-                <input id="model" placeholder="Example: Activa / Swift" required>
-
-                <label>Manufacturing Year</label>
-                <input id="year" type="number" min="1950"
-                    max="2100" placeholder="2022" required>
-
-                <label>KM Driven</label>
-                <input id="km" type="number" min="0"
-                    placeholder="25000" required>
-
-                <label>Colour</label>
-                <input id="colour" placeholder="Black">
-
-                <label>Location</label>
-                <input id="location" placeholder="Your location" required>
-
-                <label>Expected Amount (₹)</label>
-                <input id="amount" type="number" min="1"
-                    placeholder="500000" required>
-
-                <label>Seller Name</label>
-                <input id="sellerName" placeholder="Your name" required>
-
-                <label>Seller Phone Number</label>
-                <input id="sellerPhone" type="tel"
-                    pattern="[0-9]{10}" maxlength="10"
-                    placeholder="10 digit mobile number" required>
-
-                <label>Additional Details</label>
-                <textarea id="notes"
-                    placeholder="Write additional vehicle details"></textarea>
-
-                <label>Vehicle Photos (maximum 5)</label>
-                <input id="photos" type="file"
-                    accept="image/*" multiple required>
-
-                <button type="submit" class="submit-btn"
-                    id="submitButton">
-                    Submit Vehicle
-                </button>
-
-            </form>
-        </div>
-    </section>
-
-</main>
-
-<div id="detailsModal" class="hidden">
-    <div class="modal-box">
-        <button class="close-btn" onclick="closeDetails()">Close</button>
-        <div id="modalContent"></div>
-    </div>
+<div class="categories">
+<div class="category">
+<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80">
+<div class="category-content">
+<h3>Premium Cars</h3>
+<p>Explore premium and luxury car options.</p>
+<a class="btn" href="tel:+918722892965">Enquire Now</a>
+</div>
 </div>
 
-<a class="whatsapp"
-   href="https://wa.me/918722892965"
-   target="_blank">
-   WhatsApp
+<div class="category">
+<img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80">
+<div class="category-content">
+<h3>Family Cars</h3>
+<p>Discover cars for everyday family journeys.</p>
+<a class="btn" href="tel:+918722892965">Enquire Now</a>
+</div>
+</div>
+</div>
+</section>
+
+<section id="bikes">
+<h2 class="section-title">EXPLORE <span>BIKES</span></h2>
+
+<div class="categories">
+<div class="category">
+<img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80">
+<div class="category-content">
+<h3>Sports Bikes</h3>
+<p>Explore stylish and sporty motorcycles.</p>
+<a class="btn" href="tel:+918722892965">Enquire Now</a>
+</div>
+</div>
+
+<div class="category">
+<img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=900&q=80">
+<div class="category-content">
+<h3>Classic Bikes</h3>
+<p>Discover classic and everyday motorcycles.</p>
+<a class="btn" href="tel:+918722892965">Enquire Now</a>
+</div>
+</div>
+</div>
+</section>
+
+<section class="services" id="services">
+<h2 class="section-title">OUR <span>SERVICES</span></h2>
+
+<div class="service-grid">
+<div class="service">
+<h3>🚘 Buy Vehicles</h3>
+<p>Enquire about available cars and bikes.</p>
+</div>
+
+<div class="service">
+<h3>🏍 Sell Vehicles</h3>
+<p>Contact us to discuss selling your vehicle.</p>
+</div>
+
+<div class="service">
+<h3>🔄 Exchange</h3>
+<p>Ask about vehicle exchange options.</p>
+</div>
+
+<div class="service">
+<h3>📞 Customer Support</h3>
+<p>Call us for vehicle enquiries.</p>
+</div>
+</div>
+</section>
+
+<section>
+<div class="about">
+<h2 class="section-title">ABOUT <span>US</span></h2>
+<p>
+MOTORBIKE & CAR ZONE is your destination
+for car and motorcycle enquiries.
+Our aim is to help customers explore
+vehicle options and make informed choices.
+Contact us to know more.
+</p>
+</div>
+</section>
+
+<section class="contact" id="contact">
+<h2 class="section-title">CONTACT <span>US</span></h2>
+<p>📞 Phone: 8722892965</p>
+<p>📍 Contact us for location and vehicle details.</p>
+
+<a class="btn" href="tel:+918722892965">CALL NOW</a>
+
+<a class="btn"
+href="https://wa.me/918722892965?text=Hello%20Motorbike%20%26%20Car%20Zone">
+WHATSAPP US
 </a>
+</section>
 
 <footer>
-    MOTORBIKE & CAR ZONE<br>
-    Buy and Sell Used Cars & Bikes
+<p>© 2026 MOTORBIKE & CAR ZONE. All Rights Reserved.</p>
 </footer>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-
-<script>
-// ===================================
-// FIREBASE CONFIGURATION
-// ===================================
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDHQmPbIsNneQi0Ra553e9F6GXqvfjxMhU",
-    authDomain: "motorbike--car-zone.firebaseapp.com",
-    projectId: "motorbike--car-zone",
-    storageBucket: "motorbike--car-zone.firebasestorage.app",
-    messagingSenderId: "604944422467",
-    appId: "1:604944422467:web:57f36ceb7b3f60326b26f6",
-    measurementId: "G-F9BFX3GFTB"
-};
-
-// ===================================
-// CLOUDINARY CONFIGURATION
-// ===================================
-
-const CLOUD_NAME = "forby6hp";
-const UPLOAD_PRESET = "motorbike_car_zone";
-
-// ===================================
-// INITIALIZE FIREBASE
-// ===================================
-
-let auth;
-let db;
-let currentUser = null;
-let allVehicles = [];
-let currentCategory = "all";
-let displayedVehicles = [];
-
-try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db = firebase.firestore();
-
-} catch (error) {
-    document.getElementById("connectionStatus").textContent =
-        "Firebase initialization error: " + error.message;
-}
-
-// ===================================
-// AUTHENTICATION AND VEHICLE LOADING
-// ===================================
-
-if (auth && db) {
-
-    auth.onAuthStateChanged(async function(user) {
-
-        if (user) {
-            currentUser = user;
-            loadVehicles();
-
-        } else {
-            try {
-                await auth.signInAnonymously();
-            } catch (error) {
-                document.getElementById("connectionStatus").textContent =
-                    "Login error: " + error.message +
-                    ". Enable Anonymous Authentication in Firebase.";
-            }
-        }
-
-    });
-}
-
-// ===================================
-// LOAD APPROVED VEHICLES
-// ===================================
-
-function loadVehicles() {
-
-    document.getElementById("connectionStatus").textContent =
-        "Loading approved vehicles...";
-
-    db.collection("vehicles")
-      .where("status", "==", "approved")
-      .onSnapshot(function(snapshot) {
-
-        allVehicles = [];
-
-        snapshot.forEach(function(doc) {
-            allVehicles.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-
-        allVehicles.sort(function(a, b) {
-            const aTime = a.createdAt?.toMillis?.() || 0;
-            const bTime = b.createdAt?.toMillis?.() || 0;
-            return bTime - aTime;
-        });
-
-        document.getElementById("connectionStatus").textContent =
-            allVehicles.length + " approved vehicle(s) available.";
-
-        applyFilters();
-
-      }, function(error) {
-
-        document.getElementById("connectionStatus").textContent =
-            "Database error: " + error.message;
-
-      });
-}
-
-// ===================================
-// MENU NAVIGATION
-// ===================================
-
-function selectCategory(category, button) {
-
-    currentCategory = category;
-
-    document.getElementById("home").classList.remove("hidden");
-    document.getElementById("seller").classList.add("hidden");
-    document.getElementById("searchArea").classList.remove("hidden");
-
-    document.querySelectorAll("#mainMenu button").forEach(function(btn) {
-        btn.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-    const titles = {
-        all: "All Available Vehicles",
-        car: "Used Cars",
-        bike: "Used Bikes"
-    };
-
-    document.getElementById("pageTitle").textContent =
-        titles[category];
-
-    applyFilters();
-}
-
-function showSeller(button) {
-
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("seller").classList.remove("hidden");
-    document.getElementById("searchArea").classList.add("hidden");
-
-    document.querySelectorAll("#mainMenu button").forEach(function(btn) {
-        btn.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-    window.scrollTo(0, 0);
-}
-
-// ===================================
-// SEARCH AND CATEGORY FILTER
-// ===================================
-
-document.getElementById("searchInput").addEventListener("input", applyFilters);
-
-function applyFilters() {
-
-    const search = document.getElementById("searchInput")
-        .value.trim().toLowerCase();
-
-    displayedVehicles = allVehicles.filter(function(v) {
-
-        const type = String(v.type || "").toLowerCase();
-
-        const matchesCategory =
-            currentCategory === "all" ||
-            type === currentCategory;
-
-        const searchableText = [
-            v.brand,
-            v.model,
-            v.location,
-            v.colour,
-            v.year
-        ].join(" ").toLowerCase();
-
-        const matchesSearch = searchableText.includes(search);
-
-        return matchesCategory && matchesSearch;
-
-    });
-
-    renderVehicles();
-}
-
-// ===================================
-// DISPLAY VEHICLES
-// ===================================
-
-function renderVehicles() {
-
-    const grid = document.getElementById("vehicleGrid");
-
-    grid.innerHTML = "";
-
-    if (displayedVehicles.length === 0) {
-
-        grid.innerHTML =
-            "<p>No approved vehicles found.</p>";
-
-        return;
-    }
-
-    displayedVehicles.forEach(function(v, index) {
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const imageUrl =
-            Array.isArray(v.photoUrls) && v.photoUrls.length
-                ? v.photoUrls[0]
-                : "";
-
-        const img = document.createElement("img");
-        img.alt = (v.brand || "") + " " + (v.model || "");
-        img.src = imageUrl || "https://placehold.co/500x300?text=Vehicle";
-
-        const content = document.createElement("div");
-        content.className = "card-content";
-
-        const title = document.createElement("h3");
-        title.textContent = (v.brand || "") + " " + (v.model || "");
-
-        const price = document.createElement("div");
-        price.className = "price";
-        price.textContent = "₹" + Number(v.amount || 0).toLocaleString("en-IN");
-
-        const details = document.createElement("p");
-        details.textContent =
-            (v.year || "-") + " | " +
-            (Number(v.km || 0).toLocaleString("en-IN")) + " KM";
-
-        const location = document.createElement("p");
-        location.textContent = "📍 " + (v.location || "-");
-
-        const button = document.createElement("button");
-        button.textContent = "View Details";
-        button.onclick = function() {
-            showDetails(index);
-        };
-
-        content.append(title, price, details, location, button);
-        card.append(img, content);
-        grid.appendChild(card);
-    });
-}
-
-// ===================================
-// VEHICLE DETAILS
-// ===================================
-
-function showDetails(index) {
-
-    const v = displayedVehicles[index];
-
-    if (!v) return;
-
-    const modal = document.getElementById("modalContent");
-    modal.innerHTML = "";
-
-    const title = document.createElement("h2");
-    title.textContent = (v.brand || "") + " " + (v.model || "");
-
-    const images = Array.isArray(v.photoUrls) ? v.photoUrls : [];
-
-    images.forEach(function(url) {
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = "Vehicle photo";
-        modal.appendChild(img);
-    });
-
-    const details = document.createElement("p");
-
-    details.style.lineHeight = "1.8";
-    details.textContent =
-        "Type: " + (v.type || "-") + "\n" +
-        "Year: " + (v.year || "-") + "\n" +
-        "KM Driven: " + (v.km || "-") + "\n" +
-        "Colour: " + (v.colour || "-") + "\n" +
-        "Location: " + (v.location || "-") + "\n" +
-        "Amount: ₹" + Number(v.amount || 0).toLocaleString("en-IN") + "\n" +
-        "Seller: " + (v.sellerName || "-") + "\n" +
-        "Details: " + (v.notes || "-");
-
-    const enquiry = document.createElement("a");
-    enquiry.href =
-        "https://wa.me/918722892965?text=" +
-        encodeURIComponent("I am interested in " +
-        (v.brand || "") + " " + (v.model || ""));
-
-    enquiry.target = "_blank";
-    enquiry.textContent = "Enquire on WhatsApp";
-    enquiry.style.display = "block";
-    enquiry.style.padding = "13px";
-    enquiry.style.background = "#20bd5a";
-    enquiry.style.color = "white";
-    enquiry.style.textAlign = "center";
-    enquiry.style.textDecoration = "none";
-    enquiry.style.borderRadius = "7px";
-    enquiry.style.marginTop = "15px";
-
-    modal.append(title, details, enquiry);
-
-    document.getElementById("detailsModal").classList.remove("hidden");
-}
-
-function closeDetails() {
-    document.getElementById("detailsModal").classList.add("hidden");
-}
-
-// ===================================
-// CLOUDINARY PHOTO UPLOAD
-// ===================================
-
-async function uploadPhoto(file) {
-
-    const formData = new FormData();
-
-    formData.append("file", file);
-    formData.append("upload_preset", UPLOAD_PRESET);
-
-    const response = await fetch(
-        "https://api.cloudinary.com/v1_1/" +
-        CLOUD_NAME + "/image/upload",
-        {
-            method: "POST",
-            body: formData
-        }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.error?.message || "Photo upload failed");
-    }
-
-    return result.secure_url;
-}
-
-// ===================================
-// SUBMIT SELLER FORM
-// ===================================
-
-document.getElementById("vehicleForm")
-.addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    const status = document.getElementById("formStatus");
-    const submitButton = document.getElementById("submitButton");
-
-    try {
-
-        if (!currentUser) {
-            throw new Error("Please wait for Firebase login.");
-        }
-
-        const files = document.getElementById("photos").files;
-
-        if (files.length === 0 || files.length > 5) {
-            throw new Error("Please select between 1 and 5 photos.");
-        }
-
-        for (const file of files) {
-            if (!file.type.startsWith("image/")) {
-                throw new Error("Only image files are allowed.");
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                throw new Error("Each photo must be 5 MB or smaller.");
-            }
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = "Uploading...";
-
-        status.classList.remove("hidden");
-        status.textContent = "Uploading vehicle photos...";
-
-        const photoUrls = [];
-
-        for (const file of files) {
-            const url = await uploadPhoto(file);
-            photoUrls.push(url);
-        }
-
-        status.textContent = "Saving vehicle details...";
-
-        const vehicleData = {
-            type: document.getElementById("type").value,
-            brand: document.getElementById("brand").value.trim(),
-            model: document.getElementById("model").value.trim(),
-            year: Number(document.getElementById("year").value),
-            km: Number(document.getElementById("km").value),
-            colour: document.getElementById("colour").value.trim(),
-            location: document.getElementById("location").value.trim(),
-            amount: Number(document.getElementById("amount").value),
-            sellerName: document.getElementById("sellerName").value.trim(),
-            sellerPhone: document.getElementById("sellerPhone").value.trim(),
-            notes: document.getElementById("notes").value.trim(),
-            sellerId: currentUser.uid,
-            photoUrls: photoUrls,
-            status: "pending",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        await db.collection("vehicles").add(vehicleData);
-
-        status.textContent =
-            "Vehicle submitted successfully! It will appear after admin approval.";
-
-        status.style.background = "#d8f5df";
-
-        document.getElementById("vehicleForm").reset();
-
-    } catch (error) {
-
-        status.classList.remove("hidden");
-        status.style.background = "#ffe0e0";
-        status.textContent = "Error: " + error.message;
-
-    } finally {
-
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit Vehicle";
-
-    }
-
-});
-</script>
+<a class="whatsapp"
+href="https://wa.me/918722892965?text=Hello%20I%20need%20vehicle%20details">
+WhatsApp
+</a>
 
 </body>
 </html>
+
